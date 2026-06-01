@@ -96,7 +96,7 @@ export default function SignInPage() {
                 Select your stakeholder role
               </h2>
               <p className="mt-2 text-slate-500">
-                This is a static MVP login flow. Backend OAuth 2.0 / OIDC can be
+                This is a  MVP login flow. Backend OAuth 2.0 / OIDC can be
                 integrated later.
               </p>
             </div>
