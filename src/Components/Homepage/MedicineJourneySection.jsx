@@ -7,11 +7,14 @@ const steps = [
   "Drug Registration",
   "Manufacturer Licensed",
   "Medicine Batch Created",
-  "Transferred to Pharmacy / Distributor",
+  "Transferred to Pharmacy",
   "Dispensed to Citizen",
   "PM-JAY Claim Processed",
   "Compliance Audited",
 ];
+
+const journeyPath =
+  "M 0 120 C 130 60, 210 55, 330 100 S 500 185, 620 145 S 770 70, 900 125 S 1060 190, 1180 130";
 
 export default function MedicineJourneySection() {
   const sectionRef = useRef(null);
@@ -68,7 +71,7 @@ export default function MedicineJourneySection() {
             </div>
 
             {/* Desktop timeline */}
-           <div className="relative mt-8 hidden h-[390px] lg:block">
+            <div className="relative mt-8 hidden h-[390px] lg:block">
               <svg
                 viewBox="0 0 1200 520"
                 className="absolute inset-0 h-full w-full"
@@ -76,7 +79,7 @@ export default function MedicineJourneySection() {
               >
                 <defs>
                   <linearGradient
-                    id="medicineJourneyPath"
+                    id="medicineJourneyPathGradient"
                     x1="0%"
                     y1="0%"
                     x2="100%"
@@ -98,18 +101,21 @@ export default function MedicineJourneySection() {
                   </filter>
                 </defs>
 
+                {/* Base path */}
                 <path
-                  d="M 0 120 C 130 60, 210 55, 330 100 S 500 185, 620 145 S 770 70, 900 125 S 1060 190, 1180 130"
+                  id="medicineJourneyMainPath"
+                  d={journeyPath}
                   fill="none"
                   stroke="rgba(255,255,255,0.06)"
                   strokeWidth="14"
                   strokeLinecap="round"
                 />
 
+                {/* Animated glowing path */}
                 <motion.path
-                  d="M 0 120 C 130 60, 210 55, 330 100 S 500 185, 620 145 S 770 70, 900 125 S 1060 190, 1180 130"
+                  d={journeyPath}
                   fill="none"
-                  stroke="url(#medicineJourneyPath)"
+                  stroke="url(#medicineJourneyPathGradient)"
                   strokeWidth="6"
                   strokeLinecap="round"
                   filter="url(#medicineJourneyGlow)"
@@ -122,46 +128,92 @@ export default function MedicineJourneySection() {
                   transition={{ duration: 3.2, ease: "easeInOut" }}
                 />
 
-                <line x1="95" y1="92" x2="95" y2="410" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-                <line x1="250" y1="72" x2="250" y2="410" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-                <line x1="410" y1="138" x2="410" y2="410" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-                <line x1="590" y1="154" x2="590" y2="410" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-                <line x1="765" y1="92" x2="765" y2="410" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-                <line x1="960" y1="142" x2="960" y2="410" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-                <line x1="1100" y1="158" x2="1100" y2="410" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-              </svg>
+                {/* Rocket now follows the exact same SVG path */}
+                {hasEnteredView && (
+                  <g key="medicine-journey-rocket">
+                    <animateMotion
+                      dur="3.2s"
+                      fill="freeze"
+                      rotate="auto"
+                      calcMode="spline"
+                      keyTimes="0;1"
+                      keySplines="0.42 0 0.58 1"
+                    >
+                      <mpath href="#medicineJourneyMainPath" />
+                    </animateMotion>
 
-              {/* Moving rocket */}
-              <motion.div
-                className="pointer-events-none absolute left-0 top-0 z-20"
-                initial={{ offsetDistance: "0%", opacity: 0 }}
-                animate={
-                  hasEnteredView
-                    ? { offsetDistance: "100%", opacity: 1 }
-                    : { offsetDistance: "0%", opacity: 0 }
-                }
-                transition={{
-                  duration: 3.2,
-                  ease: "easeInOut",
-                  opacity: { duration: 0.2 },
-                }}
-                style={{
-                  offsetPath:
-                    'path("M 0 120 C 130 60, 210 55, 330 100 S 500 185, 620 145 S 770 70, 900 125 S 1060 190, 1180 130")',
-                  WebkitOffsetPath:
-                    'path("M 0 120 C 130 60, 210 55, 330 100 S 500 185, 620 145 S 770 70, 900 125 S 1060 190, 1180 130")',
-                  offsetRotate: "auto 90deg",
-                  WebkitOffsetRotate: "auto 90deg",
-                }}
-              >
-                <div className="relative">
-                  <div className="absolute right-3 top-1/2 h-4 w-14 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_right,rgba(59,130,246,0.65),rgba(59,130,246,0.18),transparent_70%)] blur-md" />
-                  <div className="absolute right-4 top-1/2 h-2 w-10 -translate-y-1/2 rounded-full bg-gradient-to-l from-blue-300/0 via-blue-400/50 to-blue-400/0 blur-sm" />
-                  <div className="relative rounded-full border border-white/10 bg-white/10 p-2 text-blue-100 shadow-[0_0_30px_rgba(59,130,246,0.35)] backdrop-blur-sm">
-                    <Rocket className="h-5 w-5" />
-                  </div>
-                </div>
-              </motion.div>
+                    <foreignObject x="-20" y="-20" width="40" height="40">
+                      <div
+                        xmlns="http://www.w3.org/1999/xhtml"
+                        className="relative flex h-10 w-10 items-center justify-center"
+                      >
+                        <div className="absolute inset-0 rounded-full bg-blue-400/25 blur-xl" />
+                        <div className="relative rounded-full border border-white/10 bg-white/10 p-2 text-blue-100 shadow-[0_0_30px_rgba(59,130,246,0.35)] backdrop-blur-sm">
+                          <Rocket className="h-5 w-5" />
+                        </div>
+                      </div>
+                    </foreignObject>
+                  </g>
+                )}
+
+                {/* Vertical guide lines */}
+                <line
+                  x1="95"
+                  y1="92"
+                  x2="95"
+                  y2="410"
+                  stroke="rgba(255,255,255,0.12)"
+                  strokeWidth="1"
+                />
+                <line
+                  x1="250"
+                  y1="72"
+                  x2="250"
+                  y2="410"
+                  stroke="rgba(255,255,255,0.12)"
+                  strokeWidth="1"
+                />
+                <line
+                  x1="410"
+                  y1="138"
+                  x2="410"
+                  y2="410"
+                  stroke="rgba(255,255,255,0.12)"
+                  strokeWidth="1"
+                />
+                <line
+                  x1="590"
+                  y1="154"
+                  x2="590"
+                  y2="410"
+                  stroke="rgba(255,255,255,0.12)"
+                  strokeWidth="1"
+                />
+                <line
+                  x1="765"
+                  y1="92"
+                  x2="765"
+                  y2="410"
+                  stroke="rgba(255,255,255,0.12)"
+                  strokeWidth="1"
+                />
+                <line
+                  x1="960"
+                  y1="142"
+                  x2="960"
+                  y2="410"
+                  stroke="rgba(255,255,255,0.12)"
+                  strokeWidth="1"
+                />
+                <line
+                  x1="1100"
+                  y1="158"
+                  x2="1100"
+                  y2="410"
+                  stroke="rgba(255,255,255,0.12)"
+                  strokeWidth="1"
+                />
+              </svg>
 
               {/* Timeline nodes */}
               {[
@@ -199,15 +251,15 @@ export default function MedicineJourneySection() {
 
               {/* Step cards */}
               {steps.map((step, index) => {
-               const positions = [
-  "left-[1%] top-[44%] w-[13%]",
-  "left-[14.5%] top-[44%] w-[14%]",
-  "left-[28.5%] top-[44%] w-[15%]",
-  "left-[43.5%] top-[44%] w-[18%]",
-  "left-[61%] top-[44%] w-[13%]",
-  "left-[74%] top-[44%] w-[13.5%]",
-  "left-[87.5%] top-[44%] w-[12.5%]",
-];
+                const positions = [
+                  "left-[1%] top-[44%] w-[13%]",
+                  "left-[14.5%] top-[44%] w-[14%]",
+                  "left-[28.5%] top-[44%] w-[15%]",
+                  "left-[43.5%] top-[44%] w-[18%]",
+                  "left-[61%] top-[44%] w-[13%]",
+                  "left-[74%] top-[44%] w-[13.5%]",
+                  "left-[87.5%] top-[44%] w-[12.5%]",
+                ];
 
                 return (
                   <motion.div
@@ -234,10 +286,13 @@ export default function MedicineJourneySection() {
                     </div>
 
                     <h3 className="mt-3 text-[13px] font-semibold leading-5 text-white">
-  {step}
-</h3>
+                      {step}
+                    </h3>
 
-                    <CheckCircle2 className="mt-4 text-emerald-300" size={20} />
+                    <CheckCircle2
+                      className="mt-4 text-emerald-300"
+                      size={20}
+                    />
                   </motion.div>
                 );
               })}
@@ -272,7 +327,10 @@ export default function MedicineJourneySection() {
 
                   <h3 className="text-lg font-semibold text-white">{step}</h3>
 
-                  <CheckCircle2 className="mt-5 text-emerald-300" size={22} />
+                  <CheckCircle2
+                    className="mt-5 text-emerald-300"
+                    size={22}
+                  />
                 </motion.div>
               ))}
             </div>
