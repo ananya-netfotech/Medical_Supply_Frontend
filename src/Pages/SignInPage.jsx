@@ -22,7 +22,7 @@ const roles = [
     fullLabel: "Regulatory Authority",
     description: "CDSCO / State Drug Control Authority",
     icon: ShieldCheck,
-    route: "/dashboard/regulatory-authority",
+    route: "/Government",
     accent: "blue",
     title: "Regulatory access",
     text: "Review drug registration, licensing, compliance alerts, recall notices and audit-ready governance workflows.",
