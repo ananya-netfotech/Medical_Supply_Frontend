@@ -12,7 +12,10 @@ import UpcomingAudits from "../../Components/Government/AuditTimelinePanel";
 export default function GovernmentDashboard() {
   return (
     <div className="space-y-6">
-      <CommandCenterHero />
+      {/* Added significant top spacing to account for fixed topbar */}
+      <div className="pt-16 lg:pt-20">
+        <CommandCenterHero />
+      </div>
 
       <MetricStrip />
 
@@ -27,14 +30,13 @@ export default function GovernmentDashboard() {
 
       <div className="grid items-start gap-6 2xl:grid-cols-[1fr_1fr]">
         <RegionalRiskMatrix />
-        
       </div>
 
-<div className="grid items-start gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-  <ComplianceControlTower />
-  <UpcomingAudits />
-  <SchemeClaimsWatch />
-</div>
+      <div className="grid items-start gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+        <ComplianceControlTower />
+        <UpcomingAudits />
+        <SchemeClaimsWatch />
+      </div>
 
       <GovernanceScoreGrid />
     </div>
