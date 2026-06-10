@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Box, Eye, Search } from "lucide-react";
+import { Box, Eye, Search, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import AddMedicineUnitPopup from "../../../Components/Popups/Government/AddMedicineUnitPopup";
 
 const medicineUnits = [
   {
@@ -17,12 +18,12 @@ const medicineUnits = [
     transferHistory: [
       {
         from: "Cipla Limited",
-        to: "North India Pharma Distributors",
+        to: "North India Pharmacy Network",
         timestamp: "4/16/2024, 10:30 AM",
         txnId: "TXN-PCM-0001",
       },
       {
-        from: "North India Pharma Distributors",
+        from: "North India Pharmacy Network",
         to: "Apollo Pharmacy",
         timestamp: "4/18/2024, 2:15 PM",
         txnId: "TXN-PCM-0002",
@@ -62,18 +63,18 @@ const medicineUnits = [
     currentOwner: {
       id: "PHR-MED-002",
       type: "Pharmacy",
-      name: "MedPlus Distributor",
+      name: "MedPlus Pharmacy",
     },
     transferHistory: [
       {
         from: "Cipla Limited",
-        to: "MediDist Pharma Logistics",
+        to: "MediCare Pharmacy Network",
         timestamp: "4/2/2024, 11:45 AM",
         txnId: "TXN-ATV-0001",
       },
       {
-        from: "MediDist Pharma Logistics",
-        to: "MedPlus Distributor",
+        from: "MediCare Pharmacy Network",
+        to: "MedPlus Pharmacy",
         timestamp: "4/4/2024, 4:20 PM",
         txnId: "TXN-ATV-0002",
       },
@@ -95,12 +96,12 @@ const medicineUnits = [
     transferHistory: [
       {
         from: "Cipla Limited",
-        to: "MedPlus Distributor",
+        to: "MedPlus Pharmacy",
         timestamp: "4/3/2024, 12:10 PM",
         txnId: "TXN-ATV-0003",
       },
       {
-        from: "MedPlus Distributor",
+        from: "MedPlus Pharmacy",
         to: "Citizen",
         timestamp: "4/6/2024, 5:40 PM",
         txnId: "TXN-ATV-0004",
@@ -118,12 +119,12 @@ const medicineUnits = [
     currentOwner: {
       id: "PHR-MED-002",
       type: "Pharmacy",
-      name: "MedPlus Distributor",
+      name: "MedPlus Pharmacy",
     },
     transferHistory: [
       {
         from: "Sun Pharmaceuticals Ltd.",
-        to: "MedPlus Distributor",
+        to: "MedPlus Pharmacy",
         timestamp: "3/12/2024, 1:30 PM",
         txnId: "TXN-MET-0001",
       },
@@ -213,13 +214,17 @@ const medicineUnits = [
 export default function MedicineUnits() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedHistory, setSelectedHistory] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [units, setUnits] = useState(medicineUnits);
+  const itemsPerPage = 10;
 
   const filteredUnits = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
 
-    if (!query) return medicineUnits;
+    if (!query) return units;
 
-    return medicineUnits.filter((unit) => {
+    return units.filter((unit) => {
       return (
         unit.unitId.toLowerCase().includes(query) ||
         unit.drugTypeId.toLowerCase().includes(query) ||
@@ -241,122 +246,168 @@ export default function MedicineUnits() {
         })
       );
     });
-  }, [searchTerm]);
+  }, [units, searchTerm]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredUnits.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentUnits = filteredUnits.slice(startIndex, endIndex);
+
+  const handleAddMedicineUnit = (newUnit) => {
+    setUnits(prevUnits => [newUnit, ...prevUnits]);
+    console.log("New medicine unit added:", newUnit);
+  };
 
   return (
-    <div className="min-h-[calc(100vh-5rem)] bg-slate-50 px-1 py-2">
-      <div className="mx-auto max-w-7xl">
+    <div className="min-h-screen bg-gray-50">
+      {/* Top spacer */}
+      <div className="pt-16 lg:pt-20" />
+
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-10 flex items-start gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
-            <Box className="h-7 w-7" />
+        <div className="mb-8 flex flex-col gap-4 border-b border-blue-200 pb-6 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded bg-blue-50">
+              <Box className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="whitespace-nowrap text-2xl font-semibold text-gray-900 lg:text-3xl">
+                Medicine Unit Registry
+              </h1>
+            </div>
           </div>
 
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-950">
-              Medicine Units
-            </h1>
-
-            <p className="mt-2 text-lg leading-7 text-slate-500">
-              All medicine units with licensing, ownership, batch and transfer visibility
-            </p>
-          </div>
+          <button
+            type="button"
+            onClick={() => setIsPopupOpen(true)}
+            className="inline-flex w-auto items-center justify-center gap-2 rounded bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="whitespace-nowrap">Add Medicine Unit</span>
+          </button>
         </div>
 
+        {/* Description */}
+        <p className="mb-6 text-base text-gray-600">
+          Monitor registered medicine units with manufacturing approval,
+          ownership, batch, and movement visibility
+        </p>
+
         {/* Search and count */}
-        <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center">
-          <div className="w-full max-w-md">
-            <label className="relative block">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search by unit, drug type ID, manufacturer, license, owner..."
-                className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-12 pr-4 text-base text-slate-700 shadow-sm outline-none transition placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-              />
-            </label>
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative max-w-md flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(event) => {
+                setSearchTerm(event.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search by unit no., medicine reference, manufacturer registration, license, holder, or batch..."
+              className="h-10 w-full rounded border border-blue-200 bg-white pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
           </div>
-
-          <p className="text-base text-slate-500">
-            {filteredUnits.length} total units
-          </p>
+          
+          <div className="text-sm text-gray-600">
+            <span className="font-medium text-gray-900">{filteredUnits.length}</span> registered medicine units
+          </div>
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-lg border border-blue-200 bg-white shadow-sm">
           <div className="max-h-[620px] overflow-auto">
-            <table className="w-full min-w-[1360px] border-collapse text-left">
-              <thead className="sticky top-0 z-10">
-                <tr className="border-b border-slate-300 bg-slate-100/95 backdrop-blur">
-                  <TableHead>Unit ID</TableHead>
-                  <TableHead>Drug Type ID</TableHead>
-                  <TableHead>Manufacturer ID</TableHead>
-                  <TableHead>License ID</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created At</TableHead>
-                  <TableHead>Current Owner</TableHead>
-                  <TableHead>Transfer History</TableHead>
-                  <TableHead>Batch</TableHead>
+            <table className="w-full min-w-[1400px] border-collapse">
+              <thead className="sticky top-0 z-10 bg-blue-50">
+                <tr>
+                  <th className="border-b border-r border-blue-200 bg-blue-50 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Medicine Unit No.
+                  </th>
+                  <th className="border-b border-r border-blue-200 bg-blue-50 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Medicine Registration Ref.
+                  </th>
+                  <th className="border-b border-r border-blue-200 bg-blue-50 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Manufacturer Registration No.
+                  </th>
+                  <th className="border-b border-r border-blue-200 bg-blue-50 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Manufacturing License No.
+                  </th>
+                  <th className="border-b border-r border-blue-200 bg-blue-50 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Unit Status
+                  </th>
+                  <th className="border-b border-r border-blue-200 bg-blue-50 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Created On
+                  </th>
+                  <th className="border-b border-r border-blue-200 bg-blue-50 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Current Holder
+                  </th>
+                  <th className="border-b border-r border-blue-200 bg-blue-50 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Movement History
+                  </th>
+                  <th className="border-b border-blue-200 bg-blue-50 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Batch No.
+                  </th>
                 </tr>
               </thead>
 
-              <tbody>
-                {filteredUnits.map((unit, index) => (
+              <tbody className="divide-y divide-blue-100 bg-white">
+                {currentUnits.map((unit, index) => (
                   <tr
                     key={`${unit.unitId}-${unit.batch}-${index}`}
-                    className="border-b border-slate-300 transition last:border-b-0 hover:bg-blue-50/35"
+                    className="transition-colors hover:bg-blue-50/40"
                   >
-                    <td className="px-5 py-4">
-                      <span className="font-mono text-sm font-medium text-slate-600">
+                    <td className="border-r border-blue-100 px-4 py-3">
+                      <span className="font-mono text-sm font-medium text-blue-700">
                         {unit.unitId}
                       </span>
                     </td>
 
-                    <td className="px-5 py-4">
-                      <span className="font-mono text-sm text-slate-500">
+                    <td className="border-r border-blue-100 px-4 py-3">
+                      <span className="font-mono text-sm text-gray-600">
                         {unit.drugTypeId}
                       </span>
                     </td>
 
-                    <td className="px-5 py-4">
-                      <span className="font-mono text-sm text-slate-500">
+                    <td className="border-r border-blue-100 px-4 py-3">
+                      <span className="font-mono text-sm text-gray-600">
                         {unit.manufacturerId}
                       </span>
                     </td>
 
-                    <td className="px-5 py-4">
-                      <span className="font-mono text-sm text-slate-500">
+                    <td className="border-r border-blue-100 px-4 py-3">
+                      <span className="font-mono text-sm text-gray-600">
                         {unit.licenseId}
                       </span>
                     </td>
 
-                    <td className="px-5 py-4">
+                    <td className="border-r border-blue-100 px-4 py-3">
                       <StatusBadge status={unit.status} />
                     </td>
 
-                    <td className="px-5 py-4 text-base text-slate-500">
-                      {unit.createdAt}
+                    <td className="border-r border-blue-100 px-4 py-3">
+                      <span className="text-sm text-gray-600">
+                        {unit.createdAt}
+                      </span>
                     </td>
 
-                    <td className="px-5 py-4">
+                    <td className="border-r border-blue-100 px-4 py-3">
                       <CurrentOwner owner={unit.currentOwner} />
                     </td>
 
-                    <td className="px-5 py-4">
+                    <td className="border-r border-blue-100 px-4 py-3">
                       <button
                         type="button"
                         onClick={() => setSelectedHistory(unit)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 hover:border-blue-300"
                       >
-                        <Eye className="h-4 w-4" />
-                        View History
+                        <Eye className="h-3.5 w-3.5" />
+                        View Movement
                       </button>
                     </td>
 
-                    <td className="px-5 py-4">
-                      <span className="font-mono text-sm font-medium text-slate-600">
+                    <td className="px-4 py-3">
+                      <span className="font-mono text-sm font-medium text-gray-700">
                         {unit.batch}
                       </span>
                     </td>
@@ -367,9 +418,12 @@ export default function MedicineUnits() {
                   <tr>
                     <td
                       colSpan={9}
-                      className="px-5 py-14 text-center text-slate-500"
+                      className="border-t border-blue-100 px-4 py-12 text-center text-sm text-gray-500"
                     >
-                      No medicine units found for “{searchTerm}”.
+                      <div className="flex flex-col items-center gap-2">
+                        <Search className="h-8 w-8 text-gray-300" />
+                        <p>No medicine unit records found for "<span className="font-medium text-gray-700">{searchTerm}</span>"</p>
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -377,7 +431,72 @@ export default function MedicineUnits() {
             </table>
           </div>
         </div>
+
+        {/* Footer stats and pagination */}
+        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-600">
+          <div className="text-sm text-gray-600">
+            Showing <span className="font-medium text-gray-900">{startIndex + 1}</span> to{' '}
+            <span className="font-medium text-gray-900">{Math.min(endIndex, filteredUnits.length)}</span> of{' '}
+            <span className="font-medium text-gray-900">{filteredUnits.length}</span> entries
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="inline-flex items-center gap-1 rounded border border-blue-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:border-blue-300 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+              Previous
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`min-w-[32px] px-2 py-1.5 text-sm font-medium rounded border transition-colors ${
+                      currentPage === pageNum
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-blue-200 bg-white text-gray-700 hover:bg-blue-50 hover:border-blue-300'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+            
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="inline-flex items-center gap-1 rounded border border-blue-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:border-blue-300 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+            >
+              Next
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* Add Medicine Unit Popup */}
+      <AddMedicineUnitPopup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+        onSuccess={handleAddMedicineUnit}
+      />
 
       {selectedHistory && (
         <TransferHistoryModal
@@ -392,86 +511,103 @@ export default function MedicineUnits() {
 function CurrentOwner({ owner }) {
   return (
     <div>
-      <p className="text-base font-semibold text-slate-950">{owner.id}</p>
-      <p className="mt-1 text-sm text-slate-500">{owner.name}</p>
-      <OwnerBadge ownerType={owner.type} />
+      <p className="text-sm font-semibold text-gray-900">{owner.id}</p>
+      <p className="mt-0.5 text-xs text-gray-500">{owner.name}</p>
+      <div className="mt-1">
+        <OwnerBadge ownerType={owner.type} />
+      </div>
     </div>
   );
 }
 
 function TransferHistoryModal({ unit, onClose }) {
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl">
-        <div className="border-b border-slate-200 px-6 py-5">
-          <h2 className="text-xl font-bold text-slate-950">
-            Transfer History
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 px-4">
+      <div className="w-full max-w-4xl overflow-hidden rounded-lg border border-blue-200 bg-white shadow-xl">
+        <div className="border-b border-blue-200 px-6 py-4">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Medicine Movement History
           </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Unit {unit.unitId} · Batch {unit.batch}
+          <p className="mt-1 text-sm text-gray-600">
+            Unit No. {unit.unitId} · Batch No. {unit.batch}
           </p>
         </div>
 
-        <div className="px-6 py-5">
-          <div className="mb-5 grid gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-4 sm:grid-cols-2">
-            <Info label="Drug Type ID" value={unit.drugTypeId} />
-            <Info label="Manufacturer ID" value={unit.manufacturerId} />
-            <Info label="License ID" value={unit.licenseId} />
-            <Info label="Current Owner" value={unit.currentOwner.id} />
+        <div className="px-6 py-4">
+          <div className="mb-5 grid gap-3 rounded-md border border-blue-100 bg-blue-50 p-4 sm:grid-cols-2">
+            <Info
+              label="Medicine Registration Ref."
+              value={unit.drugTypeId}
+            />
+            <Info
+              label="Manufacturer Registration No."
+              value={unit.manufacturerId}
+            />
+            <Info
+              label="Manufacturing License No."
+              value={unit.licenseId}
+            />
+            <Info
+              label="Current Holder Registration No."
+              value={unit.currentOwner.id}
+            />
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
+          <div className="overflow-hidden rounded-md border border-blue-200">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px] border-collapse text-left">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50">
-                    <TableHead>From</TableHead>
-                    <TableHead>To</TableHead>
-                    <TableHead>Timestamp</TableHead>
-                    <TableHead>Txn ID</TableHead>
+              <table className="w-full min-w-[800px] border-collapse">
+                <thead className="bg-blue-50">
+                  <tr>
+                    <th className="border-b border-r border-blue-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                      From Holder
+                    </th>
+                    <th className="border-b border-r border-blue-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                      To Holder
+                    </th>
+                    <th className="border-b border-r border-blue-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                      Movement Timestamp
+                    </th>
+                    <th className="border-b border-blue-200 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                      Transaction Ref.
+                    </th>
                   </tr>
                 </thead>
 
-                <tbody>
+                <tbody className="divide-y divide-blue-100 bg-white">
                   {unit.transferHistory.map((entry, index) => (
-                    <tr
-                      key={`${entry.txnId}-${index}`}
-                      className="border-b border-slate-100 last:border-b-0"
-                    >
-                      <td className="px-5 py-4 text-sm font-semibold text-slate-900">
+                    <tr key={`${entry.txnId}-${index}`} className="hover:bg-blue-50/40">
+                      <td className="border-r border-blue-100 px-4 py-3 text-sm font-medium text-gray-900">
                         {entry.from}
-                      </td>
-
-                      <td className="px-5 py-4 text-sm font-semibold text-slate-900">
+                       </td>
+                      <td className="border-r border-blue-100 px-4 py-3 text-sm font-medium text-gray-900">
                         {entry.to}
-                      </td>
-
-                      <td className="px-5 py-4 text-sm text-slate-500">
+                       </td>
+                      <td className="border-r border-blue-100 px-4 py-3 text-sm text-gray-600">
                         {entry.timestamp}
-                      </td>
-
-                      <td className="px-5 py-4">
-                        <span className="font-mono text-sm font-medium text-slate-600">
+                       </td>
+                      <td className="px-4 py-3">
+                        <span className="font-mono text-sm font-medium text-gray-700">
                           {entry.txnId}
                         </span>
-                      </td>
+                       </td>
                     </tr>
                   ))}
                 </tbody>
-              </table>
+               </table>
             </div>
           </div>
 
-          <p className="mt-4 text-sm text-slate-500">
-            Transfer records are stored for audit, traceability, ownership validation and regulatory review.
+          <p className="mt-4 text-xs text-gray-500">
+            Movement records are stored for audit, traceability, holder
+            validation, recall verification, and regulatory review.
           </p>
         </div>
 
-        <div className="border-t border-slate-200 bg-slate-50 px-6 py-5 text-right">
+        <div className="border-t border-blue-200 bg-gray-50 px-6 py-4 text-right">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+            className="rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
           >
             Close
           </button>
@@ -484,26 +620,28 @@ function TransferHistoryModal({ unit, onClose }) {
 function Info({ label, value }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
         {label}
       </p>
-      <p className="mt-1 font-medium text-slate-900">{value}</p>
+      <p className="mt-1 font-medium text-gray-900">{value}</p>
     </div>
   );
 }
 
 function StatusBadge({ status }) {
   const styles = {
-    Active: "border-emerald-300 bg-emerald-100 text-emerald-700",
-    Sold: "border-blue-300 bg-blue-100 text-blue-700",
-    Expired: "border-orange-300 bg-orange-100 text-orange-700",
-    Recalled: "border-red-300 bg-red-100 text-red-700",
+    Active: "border-green-200 bg-green-50 text-green-700",
+    Sold: "border-blue-200 bg-blue-50 text-blue-700",
+    Expired: "border-orange-200 bg-orange-50 text-orange-700",
+    Recalled: "border-red-200 bg-red-50 text-red-700",
+    "In Transit": "border-purple-200 bg-purple-50 text-purple-700",
+    Quarantined: "border-yellow-200 bg-yellow-50 text-yellow-700",
   };
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${
-        styles[status] || "border-slate-300 bg-slate-100 text-slate-700"
+      className={`inline-flex rounded-md border px-2.5 py-1 text-xs font-semibold ${
+        styles[status] || "border-gray-200 bg-gray-50 text-gray-700"
       }`}
     >
       {status}
@@ -515,16 +653,17 @@ function OwnerBadge({ ownerType }) {
   const normalized = ownerType.toLowerCase();
 
   const styles = {
-    pharmacy: "border-amber-300 bg-amber-100 text-amber-700",
-    manufacturer: "border-emerald-300 bg-emerald-100 text-emerald-700",
-    citizen: "border-blue-300 bg-blue-100 text-blue-700",
-    distributor: "border-indigo-300 bg-indigo-100 text-indigo-700",
+    pharmacy: "border-amber-200 bg-amber-50 text-amber-700",
+    manufacturer: "border-green-200 bg-green-50 text-green-700",
+    citizen: "border-blue-200 bg-blue-50 text-blue-700",
+    distributor: "border-purple-200 bg-purple-50 text-purple-700",
+    wholesaler: "border-indigo-200 bg-indigo-50 text-indigo-700",
   };
 
   return (
     <span
-      className={`mt-1 inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${
-        styles[normalized] || "border-slate-300 bg-slate-100 text-slate-700"
+      className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-semibold ${
+        styles[normalized] || "border-gray-200 bg-gray-50 text-gray-700"
       }`}
     >
       {ownerType}
@@ -534,7 +673,7 @@ function OwnerBadge({ ownerType }) {
 
 function TableHead({ children }) {
   return (
-    <th className="px-5 py-4 text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
+    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
       {children}
     </th>
   );

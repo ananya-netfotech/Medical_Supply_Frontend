@@ -3,6 +3,8 @@ import HomePage from "./pages/HomePage";
 import SignInPage from "./pages/SignInPage";
 import GovernmentDashboard from "./Pages/Government/GovernmentDashboard";
 import RegulatoryDashboard from "./Pages/Government/pages/RegulatoryDashboard";
+
+import ManufacturerDashboard from "./Pages/Manufacturer/pages/ManufacturerDashboard";
 // import RegulatoryDashboard from "./pages/dashboards/RegulatoryDashboard";
 // import ManufacturerDashboard from "./pages/dashboards/ManufacturerDashboard";
 // import PharmacyDistributorDashboard from "./pages/dashboards/PharmacyDistributorDashboard";
@@ -18,13 +20,10 @@ export default function App() {
         {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/signin" element={<SignInPage />} />
-        <Route path="/GovernmentDashboard" element={<GovernmentDashboard />} />
-        <Route path="/Government" element={<RegulatoryDashboard />} />
-        {/* Dashboard Routes */}
-        {/* <Route */}
-          {/* path="/dashboard/regulatory-authority" */}
-          {/* element={<RegulatoryDashboard />} */}
-        {/* /> */}
+        <Route path="/Government" element={<GovernmentDashboard />} />
+<Route path="/RegulatoryDashboard" element={<RegulatoryDashboard />} />
+        <Route path="/Manufacturer" element={<ManufacturerDashboard />} />
+
 
         {/* <Route */}
           {/* path="/dashboard/manufacturer" */}

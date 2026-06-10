@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import {
   AlertOctagon,
   ArrowDownRight,
@@ -23,6 +23,8 @@ import {
   TrendingUp,
   Truck,
 } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const complianceSummary = [
   {
@@ -345,6 +347,7 @@ export default function ComplianceAlerts() {
   const [searchTerm, setSearchTerm] = useState("");
   const [severityFilter, setSeverityFilter] = useState("All");
   const [selectedAlert, setSelectedAlert] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const filteredAlerts = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -371,41 +374,382 @@ export default function ComplianceAlerts() {
     (alert) => alert.severity === "Critical"
   ).length;
 
+  const generatePDFReport = async () => {
+    setIsGenerating(true);
+    
+    try {
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      // Header
+      doc.setFillColor(37, 99, 235);
+      doc.rect(0, 0, 210, 45, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.setFont("helvetica", "bold");
+      doc.text("Compliance Monitoring Report", 20, 20);
+      
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 35);
+      doc.text("CDSCO & State Drug Control Authorities", 20, 42);
+      
+      doc.setTextColor(0, 0, 0);
+      
+      let yPos = 60;
+      
+      // Executive Summary
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Executive Summary", 20, yPos);
+      yPos += 8;
+      
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Total Active Compliance Alerts: ${complianceAlerts.length}`, 20, yPos);
+      yPos += 6;
+      doc.text(`Critical Alerts: ${criticalCount}`, 20, yPos);
+      yPos += 6;
+      doc.text(`High Priority Alerts: ${complianceAlerts.filter(a => a.severity === "High").length}`, 20, yPos);
+      yPos += 6;
+      doc.text(`Open Compliance Rate: 78%`, 20, yPos);
+      yPos += 6;
+      doc.text(`License Exceptions: 14 (6 expired / 8 renewal due)`, 20, yPos);
+      yPos += 6;
+      doc.text(`Recall Watch Active: 5`, 20, yPos);
+      yPos += 6;
+      doc.text(`PM-JAY Claim Flags: 21`, 20, yPos);
+      yPos += 12;
+      
+      // Summary Cards
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Compliance Summary", 20, yPos);
+      yPos += 8;
+      
+      const summaryData = complianceSummary.map(item => [
+        item.label,
+        item.value,
+        item.change,
+        item.detail
+      ]);
+      
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Metric', 'Value', 'Change', 'Details']],
+        body: summaryData,
+        theme: 'striped',
+        headStyles: { fillColor: [37, 99, 235], textColor: 255, fontSize: 10 },
+        bodyStyles: { fontSize: 9 },
+        columnStyles: {
+          0: { cellWidth: 50 },
+          1: { cellWidth: 25 },
+          2: { cellWidth: 25 },
+          3: { cellWidth: 80 },
+        },
+        margin: { left: 20 },
+      });
+      
+      yPos = doc.lastAutoTable.finalY + 10;
+      
+      // Compliance Readiness Scorecard
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Compliance Readiness Scorecard", 20, yPos);
+      yPos += 8;
+      
+      const readinessData = complianceChecklist.map(item => [
+        item.label,
+        `${item.score}%`,
+        item.status,
+        item.trend
+      ]);
+      
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Category', 'Score', 'Status', 'Trend']],
+        body: readinessData,
+        theme: 'striped',
+        headStyles: { fillColor: [37, 99, 235], textColor: 255, fontSize: 10 },
+        bodyStyles: { fontSize: 9 },
+        columnStyles: {
+          0: { cellWidth: 70 },
+          1: { cellWidth: 25 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 25 },
+        },
+        margin: { left: 20 },
+      });
+      
+      yPos = doc.lastAutoTable.finalY + 10;
+      
+      // Category Breakdown
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Alert Distribution by Category", 20, yPos);
+      yPos += 8;
+      
+      const categoryData = categoryBreakdown.map(item => [
+        item.label,
+        item.value.toString(),
+        `${item.percent}%`
+      ]);
+      
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Category', 'Alert Count', 'Percentage']],
+        body: categoryData,
+        theme: 'striped',
+        headStyles: { fillColor: [37, 99, 235], textColor: 255, fontSize: 10 },
+        bodyStyles: { fontSize: 9 },
+        columnStyles: {
+          0: { cellWidth: 80 },
+          1: { cellWidth: 40 },
+          2: { cellWidth: 40 },
+        },
+        margin: { left: 20 },
+      });
+      
+      yPos = doc.lastAutoTable.finalY + 10;
+      
+      // State-wise Risk
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("State-wise Risk Assessment", 20, yPos);
+      yPos += 8;
+      
+      const stateData = stateRisk.map(item => [
+        item.state,
+        item.critical.toString(),
+        item.high.toString(),
+        item.medium.toString(),
+        `${item.score}%`
+      ]);
+      
+      autoTable(doc, {
+        startY: yPos,
+        head: [['State', 'Critical', 'High', 'Medium', 'Score']],
+        body: stateData,
+        theme: 'striped',
+        headStyles: { fillColor: [37, 99, 235], textColor: 255, fontSize: 10 },
+        bodyStyles: { fontSize: 9 },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 30 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 30 },
+          4: { cellWidth: 40 },
+        },
+        margin: { left: 20 },
+      });
+      
+      yPos = doc.lastAutoTable.finalY + 10;
+      
+      // Recent Actions
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Recent Enforcement Actions", 20, yPos);
+      yPos += 8;
+      
+      const actionsData = recentActions.map(item => [
+        item.action,
+        item.entity,
+        item.officer,
+        item.time,
+        item.status
+      ]);
+      
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Action', 'Entity', 'Officer', 'Time', 'Status']],
+        body: actionsData,
+        theme: 'striped',
+        headStyles: { fillColor: [37, 99, 235], textColor: 255, fontSize: 10 },
+        bodyStyles: { fontSize: 9 },
+        columnStyles: {
+          0: { cellWidth: 50 },
+          1: { cellWidth: 45 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 25 },
+          4: { cellWidth: 25 },
+        },
+        margin: { left: 20 },
+      });
+      
+      yPos = doc.lastAutoTable.finalY + 10;
+      
+      // Detailed Alerts
+      if (yPos > 200) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Detailed Compliance Alerts", 20, yPos);
+      yPos += 8;
+      
+      const alertsData = filteredAlerts.map(alert => [
+        alert.alertId,
+        alert.category,
+        alert.entity,
+        alert.region,
+        alert.severity,
+        alert.status,
+        alert.detected
+      ]);
+      
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Alert ID', 'Category', 'Entity', 'Region', 'Severity', 'Status', 'Detected']],
+        body: alertsData,
+        theme: 'striped',
+        headStyles: { fillColor: [37, 99, 235], textColor: 255, fontSize: 9 },
+        bodyStyles: { fontSize: 8 },
+        columnStyles: {
+          0: { cellWidth: 25 },
+          1: { cellWidth: 35 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 20 },
+          4: { cellWidth: 20 },
+          5: { cellWidth: 25 },
+          6: { cellWidth: 25 },
+        },
+        margin: { left: 20 },
+      });
+      
+      yPos = doc.lastAutoTable.finalY + 10;
+      
+      // Critical Alert Details
+      const criticalAlerts = filteredAlerts.filter(a => a.severity === "Critical");
+      
+      if (criticalAlerts.length > 0) {
+        if (yPos > 200) {
+          doc.addPage();
+          yPos = 20;
+        }
+        
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Critical Alert Details", 20, yPos);
+        yPos += 8;
+        
+        for (const alert of criticalAlerts) {
+          if (yPos > 250) {
+            doc.addPage();
+            yPos = 20;
+          }
+          
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(37, 99, 235);
+          doc.text(`${alert.alertId} - ${alert.category}`, 20, yPos);
+          yPos += 6;
+          
+          doc.setFontSize(9);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(0, 0, 0);
+          
+          doc.text(`Entity: ${alert.entity}`, 25, yPos);
+          yPos += 5;
+          doc.text(`Region: ${alert.region}`, 25, yPos);
+          yPos += 5;
+          doc.text(`Regulation: ${alert.regulation}`, 25, yPos);
+          yPos += 5;
+          doc.text(`Finding: ${alert.finding.substring(0, 80)}...`, 25, yPos);
+          yPos += 5;
+          doc.text(`Required Action: ${alert.requiredAction.substring(0, 80)}...`, 25, yPos);
+          yPos += 5;
+          doc.text(`Status: ${alert.status}`, 25, yPos);
+          yPos += 5;
+          doc.text(`Detected: ${alert.detected}`, 25, yPos);
+          yPos += 10;
+        }
+      }
+      
+      // Footer
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(128, 128, 128);
+        doc.text(
+          `Compliance Report - Page ${i} of ${pageCount} - Generated by CDSCO System`,
+          doc.internal.pageSize.getWidth() / 2,
+          doc.internal.pageSize.getHeight() - 10,
+          { align: 'center' }
+        );
+      }
+      
+      doc.save(`compliance_report_${new Date().toISOString().split('T')[0]}.pdf`);
+      
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF report. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-6 lg:px-6">
+    <div className="min-h-screen bg-gray-50 px-4 py-6 lg:px-6">
+      <div className="pt-16 lg:pt-20" />
       <div className="mx-auto max-w-[1600px]">
         {/* Header */}
-        <div className="relative mb-8 overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-slate-50 to-blue-50/60 p-6 shadow-sm lg:p-8">
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(37,99,235,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(37,99,235,0.035)_1px,transparent_1px)] bg-[size:36px_36px]" />
-          <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-blue-100/70 blur-3xl" />
-          <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-slate-200/60 blur-3xl" />
+        <div className="relative mb-8 overflow-hidden rounded-lg border border-blue-200 bg-white p-6 shadow-sm lg:p-8">
+          <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-blue-100/50 blur-3xl" />
+          <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-gray-100/50 blur-3xl" />
 
           <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
-            <div className="flex items-start gap-5">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-700 shadow-sm">
-                <ShieldAlert className="h-8 w-8" />
+            <div className="flex items-start gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-md border border-blue-200 bg-blue-50 text-blue-600">
+                <ShieldAlert className="h-7 w-7" />
               </div>
 
               <div>
-                <div className="mb-2 flex flex-wrap items-center gap-3">
-                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex rounded-md border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">
                     LIVE MONITORING
                   </span>
 
-                  <span className="flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
-                    <span className="relative flex h-2 w-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-md border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
+                    <span className="relative flex h-1.5 w-1.5">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-rose-500" />
                     </span>
                     {criticalCount} Critical
                   </span>
                 </div>
 
-                <h1 className="text-3xl font-bold tracking-tight text-blue-950 lg:text-4xl">
+                <h1 className="text-2xl font-semibold text-gray-900 lg:text-3xl">
                   Compliance Monitoring & Enforcement
                 </h1>
 
-                <p className="mt-2 max-w-3xl text-base leading-7 text-slate-600">
+                <p className="mt-2 max-w-3xl text-sm text-gray-600">
                   Real-time regulatory oversight for CDSCO and State Drug Control
                   authorities — track alerts, enforce actions, and maintain audit
                   readiness.
@@ -414,14 +758,14 @@ export default function ComplianceAlerts() {
             </div>
 
             <div className="flex shrink-0 items-center gap-3">
-              <div className="rounded-xl border border-blue-100 bg-white px-4 py-2.5 shadow-sm">
-                <p className="text-xs text-slate-500">Today's Actions</p>
-                <p className="text-xl font-bold text-blue-950">24</p>
+              <div className="rounded-md border border-gray-200 bg-white px-3 py-2">
+                <p className="text-xs text-gray-500">Today's Actions</p>
+                <p className="text-lg font-bold text-gray-900">24</p>
               </div>
 
-              <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5 shadow-sm">
-                <p className="text-xs text-slate-500">Resolution Rate</p>
-                <p className="text-xl font-bold text-emerald-700">78%</p>
+              <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2">
+                <p className="text-xs text-gray-500">Resolution Rate</p>
+                <p className="text-lg font-bold text-green-700">78%</p>
               </div>
             </div>
           </div>
@@ -461,22 +805,22 @@ export default function ComplianceAlerts() {
               ))}
             </div>
 
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="mt-4 rounded-md border border-gray-200 bg-gray-50 p-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">
+                  <p className="text-sm font-semibold text-gray-800">
                     Total alert categories
                   </p>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                  <p className="mt-1 text-xs text-gray-500">
                     Distribution across quality, licensing, claims and traceability.
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-center">
-                  <p className="text-xl font-bold text-emerald-700">
+                <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-center">
+                  <p className="text-xl font-bold text-green-700">
                     {categoryBreakdown.length}
                   </p>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-green-700">
                     Types
                   </p>
                 </div>
@@ -548,20 +892,20 @@ export default function ComplianceAlerts() {
         </div>
 
         {/* Search and Filters */}
-        <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+        <div className="mb-6 flex flex-col gap-4 rounded-md border border-gray-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
           <div className="relative max-w-lg flex-1">
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-400" />
             <input
               type="text"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder="Search by alert ID, entity, regulation, region..."
-              className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-base text-slate-700 outline-none transition-all focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+              className="h-10 w-full rounded border border-blue-200 bg-white pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm font-medium text-slate-500">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-gray-500">
               Severity:
             </span>
 
@@ -570,7 +914,7 @@ export default function ComplianceAlerts() {
                 key={severity}
                 type="button"
                 onClick={() => setSeverityFilter(severity)}
-                className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                   severityFilter === severity
                     ? severity === "Critical"
                       ? "border border-rose-200 bg-rose-50 text-rose-700"
@@ -579,7 +923,7 @@ export default function ComplianceAlerts() {
                       : severity === "Medium"
                       ? "border border-amber-200 bg-amber-50 text-amber-700"
                       : "border border-blue-200 bg-blue-50 text-blue-700"
-                    : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
                 }`}
               >
                 {severity}
@@ -589,36 +933,36 @@ export default function ComplianceAlerts() {
         </div>
 
         {/* Alerts Table */}
-        <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="mb-6 overflow-hidden rounded-lg border border-blue-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1280px]">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <table className="w-full min-w-[1280px] border-collapse">
+              <thead className="bg-blue-50">
+                <tr>
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
                     Alert ID
                   </th>
-                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
                     Category / Owner
                   </th>
-                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
                     Regulation
                   </th>
-                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
                     Entity / Region
                   </th>
-                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
                     Severity
                   </th>
-                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
                     Status
                   </th>
-                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="border-b border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
                     Action
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-blue-100 bg-white">
                 {filteredAlerts.map((alert) => (
                   <ModernAlertRow
                     key={alert.alertId}
@@ -636,9 +980,12 @@ export default function ComplianceAlerts() {
                   <tr>
                     <td
                       colSpan={7}
-                      className="px-5 py-16 text-center text-slate-500"
+                      className="border-t border-blue-100 px-4 py-12 text-center text-sm text-gray-500"
                     >
-                      No compliance alerts found for "{searchTerm}"
+                      <div className="flex flex-col items-center gap-2">
+                        <Search className="h-8 w-8 text-gray-300" />
+                        <p>No compliance alerts found for "<span className="font-medium text-gray-700">{searchTerm}</span>"</p>
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -659,25 +1006,36 @@ export default function ComplianceAlerts() {
         )}
 
         {/* Footer */}
-        <div className="mt-6 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 via-white to-slate-50 p-5 text-slate-900 shadow-sm">
+        <div className="mt-6 rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 via-white to-gray-50 p-5 shadow-sm">
           <div className="flex flex-col items-center justify-between gap-4 lg:flex-row">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
-                <ShieldCheck className="h-6 w-6" />
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-100 text-blue-600">
+                <ShieldCheck className="h-5 w-5" />
               </div>
 
               <div>
-                <p className="font-semibold text-blue-950">
+                <p className="font-semibold text-gray-900">
                   Audit Ready System
                 </p>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-gray-500">
                   All actions are timestamped and logged for regulatory review.
                 </p>
               </div>
             </div>
 
-            <button className="rounded-xl bg-blue-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800">
-              Download Compliance Report
+            <button 
+              onClick={generatePDFReport}
+              disabled={isGenerating}
+              className="rounded-md bg-blue-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Generating...
+                </>
+              ) : (
+                'Download Compliance Report'
+              )}
             </button>
           </div>
         </div>
@@ -689,71 +1047,58 @@ export default function ComplianceAlerts() {
 function ModernPanel({ title, icon: Icon, badge, tone = "blue", children }) {
   const styles = {
     blue: {
-      header: "from-blue-50 to-white",
-      border: "border-blue-100",
-      icon: "bg-blue-100 text-blue-700",
-      badge: "bg-blue-50 text-blue-700 border-blue-100",
-      title: "text-blue-950",
+      header: "border-b border-blue-200 bg-blue-50",
+      border: "border-blue-200",
+      icon: "bg-blue-50 text-blue-600",
+      badge: "bg-blue-50 text-blue-700 border border-blue-200",
+      title: "text-gray-900",
     },
     emerald: {
-      header: "from-emerald-50 to-white",
-      border: "border-emerald-100",
-      icon: "bg-emerald-100 text-emerald-700",
-      badge: "bg-emerald-50 text-emerald-700 border-emerald-100",
-      title: "text-slate-950",
+      header: "border-b border-green-200 bg-green-50",
+      border: "border-green-200",
+      icon: "bg-green-50 text-green-600",
+      badge: "bg-green-50 text-green-700 border border-green-200",
+      title: "text-gray-900",
     },
     amber: {
-      header: "from-amber-50 to-white",
-      border: "border-amber-100",
-      icon: "bg-amber-100 text-amber-700",
-      badge: "bg-amber-50 text-amber-700 border-amber-100",
-      title: "text-slate-950",
+      header: "border-b border-amber-200 bg-amber-50",
+      border: "border-amber-200",
+      icon: "bg-amber-50 text-amber-600",
+      badge: "bg-amber-50 text-amber-700 border border-amber-200",
+      title: "text-gray-900",
     },
     rose: {
-      header: "from-rose-50 to-white",
-      border: "border-rose-100",
-      icon: "bg-rose-100 text-rose-700",
-      badge: "bg-rose-50 text-rose-700 border-rose-100",
-      title: "text-slate-950",
+      header: "border-b border-rose-200 bg-rose-50",
+      border: "border-rose-200",
+      icon: "bg-rose-50 text-rose-600",
+      badge: "bg-rose-50 text-rose-700 border border-rose-200",
+      title: "text-gray-900",
     },
     slate: {
-      header: "from-slate-50 to-white",
-      border: "border-slate-200",
-      icon: "bg-slate-100 text-slate-700",
-      badge: "bg-slate-50 text-slate-600 border-slate-200",
-      title: "text-slate-950",
+      header: "border-b border-gray-200 bg-gray-50",
+      border: "border-gray-200",
+      icon: "bg-gray-50 text-gray-600",
+      badge: "bg-gray-50 text-gray-600 border border-gray-200",
+      title: "text-gray-900",
     },
   };
 
   const active = styles[tone] || styles.blue;
 
   return (
-    <div
-      className={`h-fit overflow-hidden rounded-2xl border ${active.border} bg-white shadow-sm transition-all hover:shadow-md`}
-    >
-      <div
-        className={`border-b ${active.border} bg-gradient-to-r ${active.header} px-5 py-4`}
-      >
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div
-              className={`flex h-9 w-9 items-center justify-center rounded-xl ${active.icon}`}
-            >
-              <Icon className="h-4 w-4" />
-            </div>
-
-            <h3 className={`font-semibold ${active.title}`}>{title}</h3>
+    <div className={`h-fit overflow-hidden rounded-lg border ${active.border} bg-white shadow-sm`}>
+      <div className={`flex items-center justify-between gap-4 border-b ${active.header} px-4 py-3`}>
+        <div className="flex items-center gap-2">
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md ${active.icon}`}>
+            <Icon className="h-4 w-4" />
           </div>
-
-          <span
-            className={`rounded-full border px-2.5 py-1 text-xs font-medium ${active.badge}`}
-          >
-            {badge}
-          </span>
+          <h3 className={`font-semibold ${active.title}`}>{title}</h3>
         </div>
+        <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${active.badge}`}>
+          {badge}
+        </span>
       </div>
-
-      <div className="p-5">{children}</div>
+      <div className="p-4">{children}</div>
     </div>
   );
 }
@@ -763,36 +1108,24 @@ function ModernSummaryCard({ item }) {
   const tone = toneStyles[item.tone];
   const TrendIcon = item.trend === "up" ? ArrowUpRight : ArrowDownRight;
   const trendColor =
-    item.trend === "up" ? "text-emerald-600" : "text-rose-600";
+    item.trend === "up" ? "text-green-600" : "text-rose-600";
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-      <div
-        className={`absolute -right-8 -top-8 h-24 w-24 rounded-full ${tone.glow} blur-2xl opacity-0 transition-opacity group-hover:opacity-100`}
-      />
-
-      <div className="relative z-10">
-        <div className="mb-4 flex items-center justify-between">
-          <div
-            className={`flex h-12 w-12 items-center justify-center rounded-xl ${tone.bg} ${tone.text} ring-1 ${tone.border}`}
-          >
-            <Icon className="h-5 w-5" />
-          </div>
-
-          <div className="flex items-center gap-1">
-            <TrendIcon className={`h-4 w-4 ${trendColor}`} />
-            <span className={`text-sm font-semibold ${trendColor}`}>
-              {item.change}
-            </span>
-          </div>
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md">
+      <div className="mb-3 flex items-center justify-between">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-md ${tone.bg} ${tone.text} border ${tone.border}`}>
+          <Icon className="h-5 w-5" />
         </div>
-
-        <p className="text-sm font-medium text-slate-500">{item.label}</p>
-        <p className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
-          {item.value}
-        </p>
-        <p className="mt-2 text-sm text-slate-500">{item.detail}</p>
+        <div className="flex items-center gap-1">
+          <TrendIcon className={`h-3.5 w-3.5 ${trendColor}`} />
+          <span className={`text-sm font-medium ${trendColor}`}>
+            {item.change}
+          </span>
+        </div>
       </div>
+      <p className="text-sm font-medium text-gray-500">{item.label}</p>
+      <p className="mt-1 text-2xl font-bold text-gray-900">{item.value}</p>
+      <p className="mt-1 text-xs text-gray-500">{item.detail}</p>
     </div>
   );
 }
@@ -801,63 +1134,50 @@ function ModernChecklistRow({ item, compact = false }) {
   const Icon = item.icon;
 
   const getColor = () => {
-    if (item.score >= 90) return "bg-emerald-500";
+    if (item.score >= 90) return "bg-green-500";
     if (item.score >= 75) return "bg-blue-500";
     if (item.score >= 65) return "bg-amber-500";
     return "bg-rose-500";
   };
 
   const getStatusColor = () => {
-    if (item.status === "Strong") return "text-emerald-600 bg-emerald-50";
-    if (item.status === "Watch") return "text-amber-600 bg-amber-50";
-    return "text-rose-600 bg-rose-50";
+    if (item.status === "Strong") return "text-green-700 bg-green-50";
+    if (item.status === "Watch") return "text-amber-700 bg-amber-50";
+    return "text-rose-700 bg-rose-50";
   };
 
   const TrendIcon = item.trend.startsWith("+") ? TrendingUp : TrendingDown;
   const trendColor = item.trend.startsWith("+")
-    ? "text-emerald-500"
+    ? "text-green-500"
     : "text-rose-500";
 
   return (
-    <div
-      className={`group rounded-xl transition-all hover:bg-slate-50 ${
-        compact ? "p-2.5" : "p-3"
-      }`}
-    >
-      <div className="mb-2 flex items-center justify-between gap-4">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-            <Icon className="h-4 w-4" />
+    <div className={`rounded-md transition-colors hover:bg-gray-50 ${compact ? "p-2" : "p-3"}`}>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-600">
+            <Icon className="h-3.5 w-3.5" />
           </div>
-
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-slate-800">
+            <p className="text-sm font-semibold text-gray-800 truncate">
               {item.label}
             </p>
-
-            <span
-              className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor()}`}
-            >
+            <span className={`mt-0.5 inline-block rounded-md px-1.5 py-0.5 text-xs font-medium ${getStatusColor()}`}>
               {item.status}
             </span>
           </div>
         </div>
-
-        <div className="flex shrink-0 items-center gap-2">
-          <span className="text-lg font-bold text-slate-800">
-            {item.score}%
-          </span>
-
+        <div className="flex shrink-0 items-center gap-1.5">
+          <span className="text-base font-bold text-gray-800">{item.score}%</span>
           <div className="flex items-center gap-0.5">
-            <TrendIcon className={`h-3 w-3 ${trendColor}`} />
+            <TrendIcon className={`h-2.5 w-2.5 ${trendColor}`} />
             <span className={`text-xs font-medium ${trendColor}`}>
               {item.trend}
             </span>
           </div>
         </div>
       </div>
-
-      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+      <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
         <div
           className={`h-full rounded-full ${getColor()} transition-all duration-500`}
           style={{ width: `${item.score}%` }}
@@ -869,28 +1189,22 @@ function ModernChecklistRow({ item, compact = false }) {
 
 function CategoryCard({ item }) {
   return (
-    <div
-      className={`flex min-h-[112px] flex-col justify-between rounded-xl border border-white/70 ${item.bg} p-4 transition-all hover:scale-[1.01]`}
-    >
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <span className={`text-sm font-semibold ${item.text}`}>
-            {item.label}
-          </span>
-          <span className={`text-lg font-bold ${item.text}`}>
-            {item.value}
-          </span>
-        </div>
-
-        <div className="h-2 overflow-hidden rounded-full bg-white/70">
-          <div
-            className={`h-full rounded-full bg-gradient-to-r ${item.color}`}
-            style={{ width: `${item.percent}%` }}
-          />
-        </div>
+    <div className={`flex flex-col rounded-md border ${item.bg} p-3 transition-colors hover:shadow-sm`}>
+      <div className="mb-2 flex items-center justify-between">
+        <span className={`text-sm font-semibold ${item.text}`}>
+          {item.label}
+        </span>
+        <span className={`text-base font-bold ${item.text}`}>
+          {item.value}
+        </span>
       </div>
-
-      <p className="mt-3 text-xs text-slate-500">
+      <div className="h-1.5 overflow-hidden rounded-full bg-white/70">
+        <div
+          className={`h-full rounded-full bg-gradient-to-r ${item.color}`}
+          style={{ width: `${item.percent}%` }}
+        />
+      </div>
+      <p className="mt-2 text-xs text-gray-500">
         {item.percent}% of total alerts
       </p>
     </div>
@@ -900,27 +1214,26 @@ function CategoryCard({ item }) {
 function ComplianceHeatmap({ data }) {
   return (
     <div className="overflow-x-auto">
-      <div className="min-w-[860px] overflow-hidden rounded-2xl border border-slate-200 bg-white">
-        <div className="grid grid-cols-[130px_repeat(4,minmax(150px,1fr))] border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-          <div className="px-4 py-3">State</div>
-          <div className="px-4 py-3 text-center">Critical</div>
-          <div className="px-4 py-3 text-center">High</div>
-          <div className="px-4 py-3 text-center">Medium</div>
-          <div className="px-4 py-3 text-center">Score</div>
+      <div className="min-w-[860px] overflow-hidden rounded-md border border-blue-200 bg-white">
+        <div className="grid grid-cols-[120px_repeat(4,minmax(130px,1fr))] border-b border-blue-200 bg-blue-50 text-xs font-semibold uppercase tracking-wider text-blue-900">
+          <div className="px-3 py-2.5">State</div>
+          <div className="px-3 py-2.5 text-center">Critical</div>
+          <div className="px-3 py-2.5 text-center">High</div>
+          <div className="px-3 py-2.5 text-center">Medium</div>
+          <div className="px-3 py-2.5 text-center">Score</div>
         </div>
 
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-blue-100">
           {data.map((item) => (
             <div
               key={item.state}
-              className="grid grid-cols-[130px_repeat(4,minmax(150px,1fr))] items-center transition hover:bg-blue-50/35"
+              className="grid grid-cols-[120px_repeat(4,minmax(130px,1fr))] items-center transition hover:bg-blue-50/40"
             >
-              <div className="px-4 py-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-sm font-bold text-white">
+              <div className="px-3 py-2.5">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-gray-900 text-sm font-bold text-white">
                   {item.state}
                 </span>
               </div>
-
               <HeatCell value={item.critical} type="critical" />
               <HeatCell value={item.high} type="high" />
               <HeatCell value={item.medium} type="medium" />
@@ -929,7 +1242,7 @@ function ComplianceHeatmap({ data }) {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 border-t border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+        <div className="flex flex-wrap items-center gap-3 border-t border-blue-200 bg-blue-50 px-3 py-2 text-xs text-gray-600">
           <Legend color="bg-rose-500" label="Critical" />
           <Legend color="bg-orange-500" label="High" />
           <Legend color="bg-amber-400" label="Medium" />
@@ -949,27 +1262,25 @@ function HeatCell({ value, type }) {
       strong: "bg-rose-600 text-white",
       medium: "bg-rose-200 text-rose-900",
       light: "bg-rose-50 text-rose-700",
-      empty: "bg-slate-50 text-slate-400",
+      empty: "bg-gray-50 text-gray-400",
     },
     high: {
       strong: "bg-orange-500 text-white",
       medium: "bg-orange-200 text-orange-900",
       light: "bg-orange-50 text-orange-700",
-      empty: "bg-slate-50 text-slate-400",
+      empty: "bg-gray-50 text-gray-400",
     },
     medium: {
       strong: "bg-amber-400 text-amber-950",
       medium: "bg-amber-200 text-amber-900",
       light: "bg-amber-50 text-amber-700",
-      empty: "bg-slate-50 text-slate-400",
+      empty: "bg-gray-50 text-gray-400",
     },
   };
 
   return (
-    <div className="px-3 py-3">
-      <div
-        className={`mx-auto flex h-12 w-full max-w-[130px] items-center justify-center rounded-xl text-sm font-bold ${styles[type][intensity]}`}
-      >
+    <div className="px-2 py-2">
+      <div className={`mx-auto flex h-10 w-full max-w-[110px] items-center justify-center rounded-md text-sm font-bold ${styles[type][intensity]}`}>
         {value}
       </div>
     </div>
@@ -979,7 +1290,7 @@ function HeatCell({ value, type }) {
 function ScoreCell({ score }) {
   const scoreStyle =
     score >= 85
-      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+      ? "bg-green-50 text-green-700 border-green-200"
       : score >= 75
       ? "bg-blue-50 text-blue-700 border-blue-200"
       : score >= 65
@@ -987,10 +1298,8 @@ function ScoreCell({ score }) {
       : "bg-rose-50 text-rose-700 border-rose-200";
 
   return (
-    <div className="px-3 py-3">
-      <div
-        className={`mx-auto flex h-12 w-full max-w-[130px] items-center justify-center rounded-xl border text-sm font-bold ${scoreStyle}`}
-      >
+    <div className="px-2 py-2">
+      <div className={`mx-auto flex h-10 w-full max-w-[110px] items-center justify-center rounded-md border text-sm font-bold ${scoreStyle}`}>
         {score}%
       </div>
     </div>
@@ -999,36 +1308,33 @@ function ScoreCell({ score }) {
 
 function Legend({ color, label }) {
   return (
-    <span className="inline-flex items-center gap-2">
-      <span className={`h-2.5 w-2.5 rounded-full ${color}`} />
-      {label}
+    <span className="inline-flex items-center gap-1.5">
+      <span className={`h-2 w-2 rounded-full ${color}`} />
+      <span className="text-xs">{label}</span>
     </span>
   );
 }
 
 function ActionItem({ action }) {
   const statusStyles = {
-    completed: "bg-emerald-50 text-emerald-700 border border-emerald-100",
-    pending: "bg-amber-50 text-amber-700 border border-amber-100",
-    review: "bg-blue-50 text-blue-700 border border-blue-100",
+    completed: "bg-green-50 text-green-700 border border-green-200",
+    pending: "bg-amber-50 text-amber-700 border border-amber-200",
+    review: "bg-blue-50 text-blue-700 border border-blue-200",
   };
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-slate-100 p-3 transition-all hover:bg-slate-50">
+    <div className="flex items-center justify-between rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50">
       <div className="flex-1">
-        <p className="text-sm font-semibold text-slate-800">
+        <p className="text-sm font-semibold text-gray-800">
           {action.action}
         </p>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-gray-500">
           {action.entity} • {action.officer}
         </p>
       </div>
-
-      <div className="flex items-center gap-3">
-        <span className="text-xs text-slate-400">{action.time}</span>
-        <span
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[action.status]}`}
-        >
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-gray-400">{action.time}</span>
+        <span className={`rounded-md px-1.5 py-0.5 text-xs font-medium ${statusStyles[action.status]}`}>
           {action.status}
         </span>
       </div>
@@ -1044,17 +1350,14 @@ function PriorityItemModern({ title, text, icon: Icon, urgency }) {
   };
 
   return (
-    <div
-      className={`rounded-xl p-3 transition-all hover:shadow-sm ${urgencyColors[urgency]}`}
-    >
-      <div className="flex gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
-          <Icon className="h-4 w-4 text-slate-600" />
+    <div className={`rounded-md p-3 ${urgencyColors[urgency]}`}>
+      <div className="flex gap-2">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white shadow-sm border border-gray-200">
+          <Icon className="h-3.5 w-3.5 text-gray-600" />
         </div>
-
         <div>
-          <p className="font-semibold text-slate-800">{title}</p>
-          <p className="mt-0.5 text-xs text-slate-500">{text}</p>
+          <p className="font-semibold text-gray-800 text-sm">{title}</p>
+          <p className="mt-0.5 text-xs text-gray-500">{text}</p>
         </div>
       </div>
     </div>
@@ -1076,73 +1379,69 @@ function ModernAlertRow({ alert, isSelected, onSelect }) {
   const getStatusStyles = () => {
     switch (alert.status) {
       case "Open":
-        return "bg-rose-50 text-rose-700 border border-rose-100";
+        return "bg-rose-50 text-rose-700 border border-rose-200";
       case "Under Review":
-        return "bg-blue-50 text-blue-700 border border-blue-100";
+        return "bg-blue-50 text-blue-700 border border-blue-200";
       case "Pending Evidence":
-        return "bg-amber-50 text-amber-700 border border-amber-100";
+        return "bg-amber-50 text-amber-700 border border-amber-200";
       default:
-        return "bg-slate-50 text-slate-700 border border-slate-100";
+        return "bg-gray-50 text-gray-700 border border-gray-200";
     }
   };
 
   return (
     <tr
-      className={`cursor-pointer border-b border-slate-100 transition-all hover:bg-slate-50/80 ${
-        isSelected ? "bg-blue-50/50" : ""
+      className={`cursor-pointer transition-colors hover:bg-blue-50/40 ${
+        isSelected ? "bg-blue-50/40" : ""
       }`}
       onClick={onSelect}
     >
-      <td className="px-5 py-4">
-        <span className="font-mono text-sm font-medium text-slate-600">
+      <td className="border-r border-blue-100 px-4 py-3">
+        <span className="font-mono text-sm font-medium text-blue-700">
           {alert.alertId}
         </span>
       </td>
 
-      <td className="px-5 py-4">
-        <p className="text-sm font-semibold text-slate-800">
+      <td className="border-r border-blue-100 px-4 py-3">
+        <p className="text-sm font-semibold text-gray-800">
           {alert.category}
         </p>
-        <p className="text-xs text-slate-500">{alert.owner}</p>
-      </td>
+        <p className="text-xs text-gray-500">{alert.owner}</p>
+       </td>
 
-      <td className="px-5 py-4">
-        <p className="max-w-[240px] text-xs text-slate-600">
-          {alert.regulation.substring(0, 60)}...
+      <td className="border-r border-blue-100 px-4 py-3">
+        <p className="max-w-[220px] text-xs text-gray-600 line-clamp-2">
+          {alert.regulation}
         </p>
-      </td>
+       </td>
 
-      <td className="px-5 py-4">
-        <p className="text-sm font-medium text-slate-800">{alert.entity}</p>
-        <p className="text-xs text-slate-500">{alert.region}</p>
-      </td>
+      <td className="border-r border-blue-100 px-4 py-3">
+        <p className="text-sm font-medium text-gray-800">{alert.entity}</p>
+        <p className="text-xs text-gray-500">{alert.region}</p>
+       </td>
 
-      <td className="px-5 py-4">
-        <span
-          className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${getSeverityStyles()}`}
-        >
+      <td className="border-r border-blue-100 px-4 py-3">
+        <span className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-semibold ${getSeverityStyles()}`}>
           {alert.severity}
         </span>
-      </td>
+       </td>
 
-      <td className="px-5 py-4">
-        <span
-          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusStyles()}`}
-        >
+      <td className="border-r border-blue-100 px-4 py-3">
+        <span className={`inline-flex rounded-md px-2 py-0.5 text-xs font-semibold ${getStatusStyles()}`}>
           {alert.status}
         </span>
-      </td>
+       </td>
 
-      <td className="px-5 py-4">
+      <td className="px-4 py-3">
         <button
           type="button"
-          className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition-all hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+          className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1 text-sm font-medium text-gray-600 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
         >
           <Eye className="h-3.5 w-3.5" />
           Review
         </button>
-      </td>
-    </tr>
+       </td>
+     </tr>
   );
 }
 
@@ -1150,62 +1449,59 @@ function ModernDetailCard({ alert }) {
   if (!alert) return null;
 
   return (
-    <div className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
-      <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div className="rounded-lg border border-blue-200 bg-white p-5 shadow-sm">
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <div className="mb-2 flex items-center gap-3">
+          <div className="mb-2 flex items-center gap-2">
             <span className="font-mono text-sm font-semibold text-blue-700">
               {alert.alertId}
             </span>
-            <span className="rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
+            <span className="rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-semibold text-rose-700">
               {alert.severity}
             </span>
           </div>
-
-          <h3 className="text-xl font-bold text-slate-800">
+          <h3 className="text-lg font-semibold text-gray-800">
             {alert.category}
           </h3>
-
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-gray-500">
             Owner: {alert.owner} • Detected: {alert.detected}
           </p>
         </div>
 
         <div className="flex gap-2">
-          <button className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100">
-            <CheckCircle2 className="h-4 w-4" />
+          <button className="inline-flex items-center gap-1.5 rounded-md border border-green-200 bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 transition-colors hover:bg-green-100">
+            <CheckCircle2 className="h-3.5 w-3.5" />
             Mark Resolved
           </button>
-
-          <button className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50">
-            <Send className="h-4 w-4" />
+          <button className="inline-flex items-center gap-1.5 rounded-md border border-rose-200 bg-white px-3 py-1.5 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50">
+            <Send className="h-3.5 w-3.5" />
             Escalate
           </button>
         </div>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        <div className="rounded-xl bg-slate-50 p-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-md bg-gray-50 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
             Finding
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-slate-700">
+          <p className="mt-1 text-sm text-gray-700">
             {alert.finding}
           </p>
         </div>
 
-        <div className="rounded-xl bg-slate-50 p-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+        <div className="rounded-md bg-gray-50 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
             Required Government Action
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-slate-700">
+          <p className="mt-1 text-sm text-gray-700">
             {alert.requiredAction}
           </p>
         </div>
       </div>
 
-      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
-        <p className="text-xs text-slate-500">
+      <div className="mt-3 rounded-md border border-gray-200 bg-gray-50 p-2.5">
+        <p className="text-xs text-gray-500">
           <span className="font-semibold">Regulatory Reference:</span>{" "}
           {alert.regulation}
         </p>

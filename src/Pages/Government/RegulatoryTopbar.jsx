@@ -1,23 +1,123 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Menu, Bell, Search, User, Settings, LogOut, Shield, ChevronDown } from "lucide-react";
+import NotificationsPanel from "../../Components/Government/NotificationsPanel";
+import ProfileModal from "../../Components/Government/ProfileModal";
+import SecurityModal from "../../Components/Government/SecurityModal";
+import SettingsModal from "../../Components/Government/SettingsModal";
 
 export default function RegulatoryTopbar({ sidebarOpen, setSidebarOpen, activeModule }) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  
+  const [notifications, setNotifications] = useState([
+    { 
+      id: 1, 
+      title: "New Recall Alert", 
+      message: "Batch #AMX-2024-001 has been recalled due to quality issues",
+      time: "2 min ago", 
+      type: "urgent",
+      read: false,
+      actionUrl: "/recalls",
+      icon: "AlertTriangle",
+      priority: "high"
+    },
+    { 
+      id: 2, 
+      title: "Compliance Report Ready", 
+      message: "Monthly compliance report for March 2024 is now available for download",
+      time: "1 hour ago", 
+      type: "info",
+      read: false,
+      actionUrl: "/compliance",
+      icon: "CheckCircle2",
+      priority: "medium"
+    },
+    { 
+      id: 3, 
+      title: "License Expiring Soon", 
+      message: "Manufacturer license for Cipla Limited will expire in 15 days",
+      time: "3 hours ago", 
+      type: "warning",
+      read: true,
+      actionUrl: "/licensing",
+      icon: "AlertTriangle",
+      priority: "high"
+    },
+    { 
+      id: 4, 
+      title: "New Registration Approved", 
+      message: "Drug registration for Metformin 1000mg has been approved",
+      time: "5 hours ago", 
+      type: "success",
+      read: true,
+      actionUrl: "/drug-registration",
+      icon: "CheckCircle2",
+      priority: "low"
+    },
+    { 
+      id: 5, 
+      title: "System Update", 
+      message: "Platform will undergo maintenance on April 15, 2024 from 2-4 AM",
+      time: "1 day ago", 
+      type: "info",
+      read: true,
+      actionUrl: "#",
+      icon: "Info",
+      priority: "low"
+    },
+    { 
+      id: 6, 
+      title: "New Manufacturer Registration", 
+      message: "A new manufacturer has submitted registration for approval",
+      time: "2 days ago", 
+      type: "info",
+      read: false,
+      actionUrl: "/licensing",
+      icon: "Info",
+      priority: "medium"
+    },
+    { 
+      id: 7, 
+      title: "Quality Audit Scheduled", 
+      message: "Quality audit scheduled for Cipla Limited on April 20, 2024",
+      time: "2 days ago", 
+      type: "warning",
+      read: false,
+      actionUrl: "/compliance",
+      icon: "AlertTriangle",
+      priority: "high"
+    },
+  ]);
 
-  // Mock user data
-  const user = {
+  const [user, setUser] = useState({
     name: "Rajesh Kumar",
     role: "Drug Controller General",
-    avatar: "RK"
-  };
+    avatar: "RK",
+    email: "rajesh.kumar@cdsco.gov.in",
+    phone: "+91 98765 43210",
+    department: "CDSCO",
+    employeeId: "CDSCO/2024/001",
+    joinDate: "January 15, 2020",
+    location: "New Delhi, India"
+  });
 
-  // Mock notifications
-  const notifications = [
-    { id: 1, title: "New recall alert", time: "2 min ago", type: "urgent" },
-    { id: 2, title: "Compliance report ready", time: "1 hour ago", type: "info" },
-    { id: 3, title: "Manufacturer license expiring", time: "3 hours ago", type: "warning" },
-  ];
+  const userMenuRef = useRef(null);
+  const notificationsBtnRef = useRef(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const getModuleTitle = (module) => {
     const titles = {
@@ -33,6 +133,36 @@ export default function RegulatoryTopbar({ sidebarOpen, setSidebarOpen, activeMo
       "audit-trail": "Audit Trail",
     };
     return titles[module] || "Government Regulatory Console";
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const markAsRead = (id) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === id ? { ...notif, read: true } : notif
+      )
+    );
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prev => 
+      prev.map(notif => ({ ...notif, read: true }))
+    );
+  };
+
+  const deleteNotification = (id) => {
+    setNotifications(prev => prev.filter(notif => notif.id !== id));
+  };
+
+  const handleUpdateProfile = (updatedData) => {
+    setUser(prev => ({ ...prev, ...updatedData }));
+  };
+
+  const handleLogout = () => {
+    // Add your logout logic here
+    console.log("Logging out...");
+    // Example: window.location.href = "/login";
   };
 
   return (
@@ -78,57 +208,41 @@ export default function RegulatoryTopbar({ sidebarOpen, setSidebarOpen, activeMo
             </div>
 
             {/* Notifications */}
-            <div className="relative">
+            <div className="relative" ref={notificationsBtnRef}>
               <button
-                onClick={() => setShowNotifications(!showNotifications)}
+                onClick={() => {
+                  setShowNotifications(!showNotifications);
+                  setShowUserMenu(false);
+                }}
                 className="relative rounded-xl border border-slate-200 bg-white p-2 text-slate-700 transition hover:bg-slate-50"
               >
                 <Bell className="h-5 w-5" />
-                {notifications.length > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white">
-                    {notifications.length}
+                {unreadCount > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white ring-2 ring-white">
+                    {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
               </button>
 
-              {/* Notifications dropdown */}
-              {showNotifications && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setShowNotifications(false)}
-                  />
-                  <div className="absolute right-0 top-12 z-50 w-80 rounded-xl border border-slate-200 bg-white shadow-lg">
-                    <div className="border-b border-slate-100 p-3">
-                      <p className="font-semibold text-slate-900">Notifications</p>
-                    </div>
-                    <div className="max-h-96 overflow-y-auto">
-                      {notifications.map((notif) => (
-                        <div
-                          key={notif.id}
-                          className="border-b border-slate-100 p-3 hover:bg-slate-50 cursor-pointer transition"
-                        >
-                          <p className="text-sm font-medium text-slate-900">
-                            {notif.title}
-                          </p>
-                          <p className="text-xs text-slate-500">{notif.time}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="p-3">
-                      <button className="w-full text-center text-xs font-semibold text-blue-600 hover:text-blue-700">
-                        View all notifications
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
+              {/* Notifications Panel */}
+              <NotificationsPanel
+                isOpen={showNotifications}
+                onClose={() => setShowNotifications(false)}
+                notifications={notifications}
+                onMarkAsRead={markAsRead}
+                onMarkAllAsRead={markAllAsRead}
+                onDelete={deleteNotification}
+                anchorRef={notificationsBtnRef}
+              />
             </div>
 
             {/* User Menu */}
-            <div className="relative">
+            <div className="relative" ref={userMenuRef}>
               <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
+                onClick={() => {
+                  setShowUserMenu(!showUserMenu);
+                  setShowNotifications(false);
+                }}
                 className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-1.5 transition hover:bg-slate-50"
               >
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 text-sm font-bold text-white">
@@ -143,38 +257,86 @@ export default function RegulatoryTopbar({ sidebarOpen, setSidebarOpen, activeMo
 
               {/* User dropdown */}
               {showUserMenu && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setShowUserMenu(false)}
-                  />
-                  <div className="absolute right-0 top-12 z-50 w-64 rounded-xl border border-slate-200 bg-white shadow-lg">
-                    <div className="border-b border-slate-100 p-3">
-                      <p className="font-semibold text-slate-900">{user.name}</p>
-                      <p className="text-xs text-slate-500">{user.role}</p>
-                    </div>
-                    <div className="py-2">
-                      <button className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition">
-                        <User className="h-4 w-4" />
-                        Profile
-                      </button>
-                      <button className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition">
-                        <Settings className="h-4 w-4" />
-                        Settings
-                      </button>
-                      <div className="border-t border-slate-100 my-1" />
-                      <button className="flex w-full items-center gap-3 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 transition">
-                        <LogOut className="h-4 w-4" />
-                        Logout
-                      </button>
+                <div className="absolute right-0 top-12 z-50 w-72 rounded-xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
+                  <div className="border-b border-slate-100 p-4 bg-gradient-to-r from-blue-50 to-white">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 text-base font-bold text-white">
+                        {user.avatar}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900">{user.name}</p>
+                        <p className="text-xs text-slate-500">{user.role}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{user.email}</p>
+                      </div>
                     </div>
                   </div>
-                </>
+                  <div className="py-2">
+                    <button 
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        setShowProfileModal(true);
+                      }}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition"
+                    >
+                      <User className="h-4 w-4" />
+                      Profile
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        setShowSecurityModal(true);
+                      }}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition"
+                    >
+                      <Shield className="h-4 w-4" />
+                      Security
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        setShowSettingsModal(true);
+                      }}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Settings
+                    </button>
+                    <div className="border-t border-slate-100 my-1" />
+                    <button 
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
           </div>
         </div>
       </header>
+
+      {/* Modals */}
+      <ProfileModal 
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        user={user}
+        onUpdate={handleUpdateProfile}
+      />
+      
+      <SecurityModal 
+        isOpen={showSecurityModal}
+        onClose={() => setShowSecurityModal(false)}
+        user={user}
+      />
+      
+      <SettingsModal 
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        user={user}
+        onUpdate={handleUpdateProfile}
+      />
 
       {/* Spacer for fixed topbar on mobile */}
       <div className="h-16 lg:hidden" />

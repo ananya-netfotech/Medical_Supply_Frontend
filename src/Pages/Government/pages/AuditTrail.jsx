@@ -17,7 +17,23 @@ import {
   Search,
   ShieldCheck,
   UserCheck,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  FileText,
+  Printer,
+  Share2,
+  AlertCircle,
 } from "lucide-react";
+import AssignOfficerModal from "../../../Components/Popups/Government/AssignOfficerModal";
+import GenerateReportModal from "../../../Components/Popups/Government/GenerateReportModal";
+import MarkVerifiedModal from "../../../Components/Popups/Government/MarkVerifiedModal";
+import ViewAuditModal from "../../../Components/Popups/Government/ViewAuditModal";
+import * as XLSX from 'xlsx';
 
 const auditSummary = [
   {
@@ -255,26 +271,26 @@ const toneStyles = {
   blue: {
     bg: "bg-blue-50",
     text: "text-blue-700",
-    border: "border-blue-100",
-    glow: "bg-blue-500/20",
+    border: "border-blue-200",
+    glow: "bg-blue-500/10",
   },
   emerald: {
     bg: "bg-emerald-50",
     text: "text-emerald-700",
-    border: "border-emerald-100",
-    glow: "bg-emerald-500/20",
+    border: "border-emerald-200",
+    glow: "bg-emerald-500/10",
   },
   amber: {
     bg: "bg-amber-50",
     text: "text-amber-700",
-    border: "border-amber-100",
-    glow: "bg-amber-500/20",
+    border: "border-amber-200",
+    glow: "bg-amber-500/10",
   },
   rose: {
     bg: "bg-rose-50",
     text: "text-rose-700",
-    border: "border-rose-100",
-    glow: "bg-rose-500/20",
+    border: "border-rose-200",
+    glow: "bg-rose-500/10",
   },
 };
 
@@ -282,6 +298,19 @@ export default function AuditTrail() {
   const [searchTerm, setSearchTerm] = useState("");
   const [severityFilter, setSeverityFilter] = useState("All");
   const [auditTypeFilter, setAuditTypeFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedAudit, setSelectedAudit] = useState(null);
+  const [modalState, setModalState] = useState({
+    assignOfficer: false,
+    generateReport: false,
+    markVerified: false,
+    viewAudit: false,
+  });
+  const [exportMessage, setExportMessage] = useState("");
+  const [exportFormat, setExportFormat] = useState("PDF");
+  const [showFormatMenu, setShowFormatMenu] = useState(false);
+
+  const itemsPerPage = 10;
 
   const auditTypes = useMemo(() => {
     return ["All", ...new Set(auditEvents.map((event) => event.auditType))];
@@ -311,66 +340,428 @@ export default function AuditTrail() {
     });
   }, [searchTerm, severityFilter, auditTypeFilter]);
 
-  return (
-    <div className="min-h-[calc(100vh-5rem)] bg-slate-50 px-1 py-2">
-      <div className="mx-auto max-w-7xl">
-        {/* Header */}
-        <div className="mb-8 flex flex-col justify-between gap-6 lg:flex-row lg:items-start">
-          <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
-              <Activity className="h-7 w-7" />
-            </div>
+  const totalPages = Math.ceil(filteredAudits.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentAudits = filteredAudits.slice(startIndex, endIndex);
 
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-950">
-                Audit Trail
-              </h1>
+  // Generate HTML for PDF export
+  const generatePDFHTML = () => {
+    const getSeverityColor = (severity) => {
+      switch(severity) {
+        case 'Critical': return '#dc2626';
+        case 'High': return '#ea580c';
+        case 'Medium': return '#d97706';
+        default: return '#059669';
+      }
+    };
 
-              <p className="mt-2 max-w-4xl text-lg leading-7 text-slate-500">
-                Continuous audit monitoring for manufacturers, medicine batches,
-                licenses, transfers, recalls, PM-JAY claims and compliance actions.
-              </p>
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Audit Report - ${new Date().toISOString().split('T')[0]}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            padding: 40px;
+            color: #1f2937;
+            line-height: 1.5;
+          }
+          .container { max-width: 1200px; margin: 0 auto; }
+          .header {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #bfdbfe;
+          }
+          .header-content { display: flex; justify-content: space-between; align-items: flex-start; }
+          .logo-section { display: flex; align-items: center; gap: 15px; }
+          .logo {
+            width: 50px; height: 50px; background: #2563eb; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 24px; font-weight: bold;
+          }
+          h1 { font-size: 24px; color: #1e3a8a; margin-bottom: 5px; }
+          .subtitle { color: #3b82f6; font-size: 14px; }
+          .report-date { text-align: right; font-size: 12px; color: #6b7280; }
+          .section-title {
+            font-size: 18px; font-weight: bold; color: #1e40af;
+            margin: 25px 0 15px 0; padding-bottom: 8px;
+            border-bottom: 2px solid #bfdbfe;
+          }
+          .summary-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 15px; margin-bottom: 30px;
+          }
+          .summary-card {
+            border: 1px solid #e5e7eb; border-radius: 8px;
+            padding: 15px; background: white;
+          }
+          .summary-label { font-size: 12px; color: #6b7280; margin-bottom: 5px; }
+          .summary-value { font-size: 24px; font-weight: bold; color: #1f2937; }
+          .summary-detail { font-size: 10px; color: #9ca3af; margin-top: 5px; }
+          table {
+            width: 100%; border-collapse: collapse; margin-bottom: 20px;
+          }
+          th {
+            background: #f3f4f6; padding: 10px; text-align: left;
+            font-size: 12px; font-weight: bold; color: #374151;
+            border: 1px solid #e5e7eb;
+          }
+          td {
+            padding: 8px 10px; font-size: 11px; border: 1px solid #e5e7eb;
+            vertical-align: top;
+          }
+          .severity-badge {
+            display: inline-block; padding: 2px 6px; border-radius: 4px;
+            font-size: 10px; font-weight: 600;
+          }
+          .footer {
+            margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb;
+            text-align: center; font-size: 10px; color: #9ca3af;
+          }
+          @media print {
+            body { padding: 0; }
+            .page-break { page-break-before: always; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="header-content">
+              <div class="logo-section">
+                <div class="logo">CDSCO</div>
+                <div>
+                  <h1>Regulatory Audit Report</h1>
+                  <div class="subtitle">Central Drugs Standard Control Organization</div>
+                </div>
+              </div>
+              <div class="report-date">
+                Generated: ${new Date().toLocaleString()}
+              </div>
             </div>
           </div>
 
-          <button
-            type="button"
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
-          >
-            <Download className="h-4 w-4" />
-            Export Audit Report
-          </button>
+          <!-- Summary Section -->
+          <div class="section-title">Audit Summary</div>
+          <div class="summary-grid">
+            ${auditSummary.map(item => `
+              <div class="summary-card">
+                <div class="summary-label">${item.label}</div>
+                <div class="summary-value">${item.value}</div>
+                <div class="summary-detail">${item.detail}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Filters Info -->
+          <div class="section-title">Applied Filters</div>
+          <table>
+            <tr><th style="width: 150px">Filter Type</th><th>Value</th></tr>
+            <tr><td>Severity</td><td>${severityFilter}</td></tr>
+            <tr><td>Audit Type</td><td>${auditTypeFilter}</td></tr>
+            ${searchTerm ? `<tr><td>Search Term</td><td>${searchTerm}</td></tr>` : ''}
+          </table>
+
+          <!-- Audit Events Table -->
+          <div class="section-title">Audit Events (${filteredAudits.length} records)</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Audit ID</th><th>Timestamp</th><th>Actor</th><th>Module</th>
+                <th>Entity</th><th>Audit Type</th><th>Severity</th><th>Status</th><th>Region</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredAudits.map(event => `
+                <tr>
+                  <td>${event.auditId}</td>
+                  <td>${event.timestamp}</td>
+                  <td>${event.actor}</td>
+                  <td>${event.module}</td>
+                  <td>${event.entity}</td>
+                  <td>${event.auditType}</td>
+                  <td><span class="severity-badge" style="background: ${getSeverityColor(event.severity)}20; color: ${getSeverityColor(event.severity)}">${event.severity}</span></td>
+                  <td>${event.status}</td>
+                  <td>${event.region}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <!-- Manufacturer Scorecards -->
+          <div class="section-title">Manufacturer Audit Scorecards</div>
+          <table>
+            <thead>
+              <tr><th>Manufacturer</th><th>Location</th><th>Score</th><th>Status</th><th>Risk</th><th>Findings</th><th>Last Audit</th><th>Next Audit</th></tr>
+            </thead>
+            <tbody>
+              ${manufacturerAuditScorecards.map(m => `
+                <tr>
+                  <td>${m.manufacturer}</td>
+                  <td>${m.location}</td>
+                  <td>${m.score}%</td>
+                  <td>${m.status}</td>
+                  <td>${m.risk}</td>
+                  <td>${m.findings}</td>
+                  <td>${m.lastAudit}</td>
+                  <td>${m.nextAudit}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <!-- Audit Checklist -->
+          <div class="section-title">Audit Checklist Progress</div>
+          <table>
+            <thead><tr><th>Checklist Item</th><th>Completion</th></tr></thead>
+            <tbody>
+              ${auditChecklist.map(item => `
+                <tr>
+                  <td>${item.title}</td>
+                  <td>${item.completion}%</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <div class="footer">
+            <p>This is an electronically generated regulatory audit report</p>
+            <p>© CDSCO - Central Drugs Standard Control Organization</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  };
+
+  // Generate Excel data
+  const generateExcelData = () => {
+    const auditData = filteredAudits.map(event => ({
+      "Audit ID": event.auditId,
+      "Timestamp": event.timestamp,
+      "Actor": event.actor,
+      "Role": event.role,
+      "Module": event.module,
+      "Entity": event.entity,
+      "Entity Type": event.entityType,
+      "Action": event.action,
+      "Audit Type": event.auditType,
+      "Severity": event.severity,
+      "Status": event.status,
+      "Region": event.region,
+      "Reference": event.reference,
+      "Remarks": event.remarks,
+    }));
+    
+    return auditData;
+  };
+
+  // Export as PDF
+  const exportAsPDF = () => {
+    setExportMessage("Generating PDF...");
+    const htmlContent = generatePDFHTML();
+    const blob = new Blob([htmlContent], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, "_blank");
+    
+    if (win) {
+      win.onload = () => {
+        setTimeout(() => {
+          win.print();
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+            setExportMessage("PDF generated successfully!");
+            setTimeout(() => setExportMessage(""), 3000);
+          }, 100);
+        }, 500);
+      };
+    }
+  };
+
+  // Export as Excel
+  const exportAsExcel = () => {
+    setExportMessage("Generating Excel...");
+    setTimeout(() => {
+      const data = generateExcelData();
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      
+      // Adjust column widths
+      const colWidths = [
+        { wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 15 },
+        { wch: 20 }, { wch: 25 }, { wch: 15 }, { wch: 30 },
+        { wch: 15 }, { wch: 10 }, { wch: 12 }, { wch: 15 },
+        { wch: 20 }, { wch: 50 }
+      ];
+      ws['!cols'] = colWidths;
+      
+      XLSX.utils.book_append_sheet(wb, ws, "Audit Report");
+      XLSX.writeFile(wb, `audit-report-${new Date().toISOString().split('T')[0]}.xlsx`);
+      setExportMessage("Excel generated successfully!");
+      setTimeout(() => setExportMessage(""), 3000);
+    }, 500);
+  };
+
+  // Export as JSON
+  const exportAsJSON = () => {
+    setExportMessage("Exporting JSON...");
+    setTimeout(() => {
+      const reportData = {
+        exportedAt: new Date().toISOString(),
+        totalAudits: filteredAudits.length,
+        filters: { severity: severityFilter, auditType: auditTypeFilter, search: searchTerm },
+        audits: filteredAudits,
+        summary: auditSummary,
+        manufacturers: manufacturerAuditScorecards,
+        checklist: auditChecklist,
+      };
+      
+      const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `audit-report-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      setExportMessage("JSON exported successfully!");
+      setTimeout(() => setExportMessage(""), 3000);
+    }, 500);
+  };
+
+  const handleExportReport = () => {
+    switch(exportFormat) {
+      case "PDF":
+        exportAsPDF();
+        break;
+      case "Excel":
+        exportAsExcel();
+        break;
+      case "JSON":
+        exportAsJSON();
+        break;
+      default:
+        exportAsPDF();
+    }
+    setShowFormatMenu(false);
+  };
+
+  const openModal = (modalName, audit = null) => {
+    setSelectedAudit(audit);
+    setModalState(prev => ({ ...prev, [modalName]: true }));
+  };
+
+  const closeModal = (modalName) => {
+    setModalState(prev => ({ ...prev, [modalName]: false }));
+    setSelectedAudit(null);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="pt-16 lg:pt-20" />
+      
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8 flex flex-col gap-4 border-b border-blue-200 pb-6 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded bg-blue-50">
+              <Activity className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="whitespace-nowrap text-2xl font-semibold text-gray-900 lg:text-3xl">
+                Audit Trail
+              </h1>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowFormatMenu(!showFormatMenu)}
+                className="inline-flex items-center justify-center gap-2 rounded border border-blue-600 bg-white px-5 py-2.5 text-sm font-medium text-blue-600 shadow-sm hover:bg-blue-50 transition-colors"
+              >
+                <Filter className="h-4 w-4" />
+                <span>{exportFormat}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleExportReport}
+                className="inline-flex w-auto items-center justify-center gap-2 rounded bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              >
+                <Download className="h-4 w-4" />
+                <span className="whitespace-nowrap">Export Audit Report</span>
+              </button>
+            </div>
+            
+            {showFormatMenu && (
+              <div className="absolute top-full right-0 mt-2 rounded-md border border-gray-200 bg-white shadow-lg z-20 min-w-[120px]">
+                {["PDF", "Excel", "JSON"].map((format) => (
+                  <button
+                    key={format}
+                    onClick={() => {
+                      setExportFormat(format);
+                      setShowFormatMenu(false);
+                    }}
+                    className={`block w-full px-4 py-2 text-left text-sm hover:bg-gray-50 ${
+                      exportFormat === format ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                    }`}
+                  >
+                    {format}
+                  </button>
+                ))}
+              </div>
+            )}
+            
+            {exportMessage && (
+              <div className="absolute top-full right-0 mt-2 rounded-md bg-green-50 border border-green-200 px-3 py-1.5 text-sm text-green-700 whitespace-nowrap z-10">
+                {exportMessage}
+              </div>
+            )}
+          </div>
         </div>
 
+        {/* Rest of your component remains the same */}
+        <p className="mb-6 text-base text-gray-600">
+          Continuous audit monitoring for manufacturers, medicine batches,
+          licenses, transfers, recalls, PM-JAY claims and compliance actions.
+        </p>
+
         {/* Gov purpose note */}
-        <section className="mb-6 rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
+        <section className="mb-6 rounded-lg border border-blue-200 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
+              <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
                 Regulatory Audit Control
               </p>
-              <h2 className="mt-2 text-xl font-semibold text-blue-950">
+              <h2 className="mt-2 text-lg font-semibold text-gray-900">
                 Manufacturer audit readiness and accountability monitoring
               </h2>
-              <p className="mt-2 max-w-5xl text-sm leading-7 text-slate-600">
+              <p className="mt-2 max-w-5xl text-sm text-gray-600">
                 This audit page helps government officers review who performed
                 each action, what entity was affected, when it happened, which
                 manufacturer or batch was involved, and whether further
-                regulatory action is required. It is useful for periodic
-                manufacturer inspections, license reviews, recall verification,
-                PM-JAY claim audits and compliance escalation.
+                regulatory action is required.
               </p>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
-              <ShieldCheck className="h-5 w-5" />
+            <div className="flex shrink-0 items-center gap-2 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+              <ShieldCheck className="h-4 w-4" />
               Immutable log view
             </div>
           </div>
         </section>
 
         {/* Summary cards */}
-        <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="mb-6 grid grid-cols-2 gap-4 xl:grid-cols-4">
           {auditSummary.map((item) => (
             <SummaryCard key={item.label} item={item} />
           ))}
@@ -380,33 +771,38 @@ export default function AuditTrail() {
         <section className="mb-6">
           <div className="mb-4 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-blue-950">
+              <h2 className="text-lg font-semibold text-gray-900">
                 Manufacturer Audit Scorecards
               </h2>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-gray-500">
                 Regular audit readiness view for licensed manufacturers.
               </p>
             </div>
+            <div className="text-sm text-gray-500">
+              {manufacturerAuditScorecards.length} manufacturers
+            </div>
           </div>
 
-          <div className="grid gap-5 xl:grid-cols-3">
-            {manufacturerAuditScorecards.map((manufacturer) => (
-              <ManufacturerAuditCard
-                key={manufacturer.licenseId}
-                manufacturer={manufacturer}
-              />
-            ))}
+          <div className="max-h-[600px] overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb:hover]:bg-gray-400">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {manufacturerAuditScorecards.map((manufacturer) => (
+                <ManufacturerAuditCard
+                  key={manufacturer.licenseId}
+                  manufacturer={manufacturer}
+                />
+              ))}
+            </div>
           </div>
         </section>
 
         {/* Analytics */}
-        <section className="mb-6 grid gap-6 xl:grid-cols-[1fr_0.9fr]">
-          <Panel title="Audit volume and findings trend" icon={RefreshCcw}>
+        <section className="mb-6 grid gap-6 md:grid-cols-2">
+          <Panel title="Audit volume and findings trend" icon={RefreshCcw} className="h-[320px]">
             <AuditTrendChart data={monthlyAuditTrend} />
           </Panel>
 
-          <Panel title="Manufacturer audit checklist" icon={ClipboardCheck}>
-            <div className="space-y-4">
+          <Panel title="Manufacturer audit checklist" icon={ClipboardCheck} className="h-[320px]">
+            <div className="h-[260px] overflow-y-auto pr-1 space-y-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb:hover]:bg-gray-400">
               {auditChecklist.map((item) => (
                 <ChecklistRow key={item.title} item={item} />
               ))}
@@ -415,25 +811,27 @@ export default function AuditTrail() {
         </section>
 
         {/* Filters */}
-        <section className="mb-5 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+        <section className="mb-6 rounded-md border border-blue-200 bg-white p-4 shadow-sm">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="w-full max-w-md">
               <label className="relative block">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-400" />
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
+                  onChange={(event) => {
+                    setSearchTerm(event.target.value);
+                    setCurrentPage(1);
+                  }}
                   placeholder="Search by audit ID, actor, module, entity, region..."
-                  className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-12 pr-4 text-base text-slate-700 shadow-sm outline-none transition placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="h-10 w-full rounded border border-blue-200 bg-white pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </label>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <div className="mr-1 inline-flex items-center gap-2 text-sm font-semibold text-slate-500">
-                <Filter className="h-4 w-4" />
+              <div className="mr-1 inline-flex items-center gap-1.5 text-sm font-medium text-gray-600">
+                <Filter className="h-3.5 w-3.5" />
                 Severity
               </div>
 
@@ -441,11 +839,14 @@ export default function AuditTrail() {
                 <button
                   key={severity}
                   type="button"
-                  onClick={() => setSeverityFilter(severity)}
-                  className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                  onClick={() => {
+                    setSeverityFilter(severity);
+                    setCurrentPage(1);
+                  }}
+                  className={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
                     severityFilter === severity
                       ? "border-blue-200 bg-blue-50 text-blue-700"
-                      : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                      : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   {severity}
@@ -454,20 +855,23 @@ export default function AuditTrail() {
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <div className="mr-1 text-sm font-semibold text-slate-500">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="mr-1 text-sm font-medium text-gray-600">
               Audit Type
             </div>
 
-            {auditTypes.map((type) => (
+            {auditTypes.slice(0, 6).map((type) => (
               <button
                 key={type}
                 type="button"
-                onClick={() => setAuditTypeFilter(type)}
-                className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                onClick={() => {
+                  setAuditTypeFilter(type);
+                  setCurrentPage(1);
+                }}
+                className={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
                   auditTypeFilter === type
                     ? "border-blue-200 bg-blue-50 text-blue-700"
-                    : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                    : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
                 }`}
               >
                 {type}
@@ -477,105 +881,63 @@ export default function AuditTrail() {
         </section>
 
         {/* Audit table */}
-        <section className="overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm">
+        <section className="overflow-hidden rounded-lg border border-blue-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1380px] border-collapse text-left">
-              <thead>
-                <tr className="border-b border-slate-300 bg-slate-100/80">
-                  <TableHead>Audit ID</TableHead>
-                  <TableHead>Timestamp</TableHead>
-                  <TableHead>Actor</TableHead>
-                  <TableHead>Module</TableHead>
-                  <TableHead>Entity</TableHead>
-                  <TableHead>Audit Type</TableHead>
-                  <TableHead>Severity</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Region</TableHead>
-                  <TableHead>Action</TableHead>
+            <table className="w-full min-w-[1300px] border-collapse">
+              <thead className="bg-blue-50">
+                <tr>
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Audit ID
+                  </th>
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Timestamp
+                  </th>
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Actor
+                  </th>
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Module
+                  </th>
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Entity
+                  </th>
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Audit Type
+                  </th>
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Severity
+                  </th>
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Status
+                  </th>
+                  <th className="border-b border-r border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Region
+                  </th>
+                  <th className="border-b border-blue-200 px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-blue-900">
+                    Action
+                  </th>
                 </tr>
               </thead>
 
-              <tbody>
-                {filteredAudits.map((event) => (
-                  <tr
+              <tbody className="divide-y divide-blue-100 bg-white">
+                {currentAudits.map((event) => (
+                  <AuditRow
                     key={event.auditId}
-                    className="border-b border-slate-300 align-top transition last:border-b-0 hover:bg-blue-50/35"
-                  >
-                    <td className="px-5 py-5">
-                      <span className="font-mono text-sm text-slate-500">
-                        {event.auditId}
-                      </span>
-                    </td>
-
-                    <td className="px-5 py-5 text-sm text-slate-500">
-                      {event.timestamp}
-                    </td>
-
-                    <td className="px-5 py-5">
-                      <p className="font-semibold text-slate-950">
-                        {event.actor}
-                      </p>
-                      <p className="mt-1 text-sm text-slate-500">
-                        {event.role}
-                      </p>
-                    </td>
-
-                    <td className="px-5 py-5">
-                      <p className="font-semibold text-slate-950">
-                        {event.module}
-                      </p>
-                      <p className="mt-1 text-sm text-slate-500">
-                        IP: {event.ipAddress}
-                      </p>
-                    </td>
-
-                    <td className="px-5 py-5">
-                      <p className="font-semibold text-slate-950">
-                        {event.entity}
-                      </p>
-                      <p className="mt-1 text-sm text-slate-500">
-                        {event.entityType}
-                      </p>
-                    </td>
-
-                    <td className="px-5 py-5 text-sm font-medium text-slate-600">
-                      {event.auditType}
-                    </td>
-
-                    <td className="px-5 py-5">
-                      <SeverityBadge severity={event.severity} />
-                    </td>
-
-                    <td className="px-5 py-5">
-                      <StatusBadge status={event.status} />
-                    </td>
-
-                    <td className="px-5 py-5">
-                      <div className="inline-flex items-center gap-1.5 text-sm text-slate-600">
-                        <MapPin className="h-4 w-4 text-blue-700" />
-                        {event.region}
-                      </div>
-                    </td>
-
-                    <td className="px-5 py-5">
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50"
-                      >
-                        <Eye className="h-4 w-4" />
-                        View
-                      </button>
-                    </td>
-                  </tr>
+                    event={event}
+                    onView={() => openModal("viewAudit", event)}
+                  />
                 ))}
 
                 {filteredAudits.length === 0 && (
                   <tr>
                     <td
                       colSpan={10}
-                      className="px-5 py-14 text-center text-slate-500"
+                      className="border-t border-blue-100 px-4 py-12 text-center text-sm text-gray-500"
                     >
-                      No audit records found for “{searchTerm}”.
+                      <div className="flex flex-col items-center gap-2">
+                        <Search className="h-8 w-8 text-gray-300" />
+                        <p>No audit records found for "<span className="font-medium text-gray-700">{searchTerm}</span>"</p>
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -584,13 +946,102 @@ export default function AuditTrail() {
           </div>
         </section>
 
+        {/* Pagination */}
+        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-600">
+          <div className="text-sm text-gray-600">
+            Showing <span className="font-medium text-gray-900">{startIndex + 1}</span> to{' '}
+            <span className="font-medium text-gray-900">{Math.min(endIndex, filteredAudits.length)}</span> of{' '}
+            <span className="font-medium text-gray-900">{filteredAudits.length}</span> entries
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="inline-flex items-center gap-1 rounded border border-blue-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:border-blue-300 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+              Previous
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`min-w-[32px] px-2 py-1.5 text-sm font-medium rounded border transition-colors ${
+                      currentPage === pageNum
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-blue-200 bg-white text-gray-700 hover:bg-blue-50 hover:border-blue-300'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+            
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="inline-flex items-center gap-1 rounded border border-blue-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:border-blue-300 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+            >
+              Next
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+
         {/* Detailed audit records */}
-        <section className="mt-6 grid gap-6 lg:grid-cols-2">
-          {filteredAudits.slice(0, 4).map((event) => (
-            <AuditDetailCard key={event.auditId} event={event} />
+        <section className="mt-6 grid gap-5 md:grid-cols-2">
+          {currentAudits.slice(0, 4).map((event) => (
+            <AuditDetailCard 
+              key={event.auditId} 
+              event={event}
+              onMarkVerified={() => openModal("markVerified", event)}
+              onGenerateReport={() => openModal("generateReport", event)}
+              onAssignOfficer={() => openModal("assignOfficer", event)}
+            />
           ))}
         </section>
       </div>
+
+      {/* Modals */}
+      <AssignOfficerModal
+        isOpen={modalState.assignOfficer}
+        onClose={() => closeModal("assignOfficer")}
+        audit={selectedAudit}
+      />
+      
+      <GenerateReportModal
+        isOpen={modalState.generateReport}
+        onClose={() => closeModal("generateReport")}
+        audit={selectedAudit}
+      />
+      
+      <MarkVerifiedModal
+        isOpen={modalState.markVerified}
+        onClose={() => closeModal("markVerified")}
+        audit={selectedAudit}
+      />
+      
+      <ViewAuditModal
+        isOpen={modalState.viewAudit}
+        onClose={() => closeModal("viewAudit")}
+        audit={selectedAudit}
+      />
     </div>
   );
 }
@@ -600,26 +1051,15 @@ function SummaryCard({ item }) {
   const tone = toneStyles[item.tone];
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
-      <div
-        className={`pointer-events-none absolute right-0 top-0 h-24 w-24 rounded-full ${tone.glow} blur-2xl`}
-      />
-
-      <div className="relative z-10">
-        <div className="mb-4 flex items-center justify-between">
-          <div
-            className={`flex h-11 w-11 items-center justify-center rounded-xl ${tone.bg} ${tone.text} border ${tone.border}`}
-          >
-            <Icon className="h-5 w-5" />
-          </div>
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md">
+      <div className="mb-3 flex items-center justify-between">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-md ${tone.bg} ${tone.text} border ${tone.border}`}>
+          <Icon className="h-5 w-5" />
         </div>
-
-        <p className="text-sm font-medium text-slate-500">{item.label}</p>
-        <p className="mt-2 text-3xl font-semibold tracking-tight text-blue-950">
-          {item.value}
-        </p>
-        <p className="mt-2 text-sm text-slate-500">{item.detail}</p>
       </div>
+      <p className="text-sm font-medium text-gray-500">{item.label}</p>
+      <p className="mt-1 text-2xl font-bold text-gray-900">{item.value}</p>
+      <p className="mt-1 text-xs text-gray-500">{item.detail}</p>
     </div>
   );
 }
@@ -630,97 +1070,88 @@ function ManufacturerAuditCard({ manufacturer }) {
 
   const scoreColor =
     manufacturer.score >= 85
-      ? "text-emerald-700 bg-emerald-50 border-emerald-200"
+      ? "text-green-700 bg-green-50 border-green-200"
       : manufacturer.score >= 70
         ? "text-amber-700 bg-amber-50 border-amber-200"
         : "text-rose-700 bg-rose-50 border-rose-200";
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
-      <div className="pointer-events-none absolute right-0 top-0 h-28 w-28 rounded-full bg-blue-100 blur-2xl" />
-
-      <div className="relative z-10">
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
-              <Factory className="h-5 w-5" />
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-slate-950">
-                {manufacturer.manufacturer}
-              </h3>
-              <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
-                <MapPin className="h-3.5 w-3.5" />
-                {manufacturer.location}
-              </p>
-            </div>
+    <div className="overflow-hidden rounded-lg border border-blue-200 bg-white p-5 shadow-sm">
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600">
+            <Factory className="h-5 w-5" />
           </div>
-
-          <span
-            className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-              isHigh
-                ? "border-rose-300 bg-rose-100 text-rose-700"
-                : isMedium
-                  ? "border-amber-300 bg-amber-100 text-amber-700"
-                  : "border-emerald-300 bg-emerald-100 text-emerald-700"
-            }`}
-          >
-            {manufacturer.risk} Risk
-          </span>
-        </div>
-
-        <div className="mb-4 flex items-center justify-between rounded-2xl bg-slate-50 p-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
-              Audit Score
+            <h3 className="font-semibold text-gray-900">
+              {manufacturer.manufacturer}
+            </h3>
+            <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
+              <MapPin className="h-3 w-3" />
+              {manufacturer.location}
             </p>
-            <p className="mt-1 text-sm text-slate-500">{manufacturer.status}</p>
-          </div>
-
-          <div
-            className={`rounded-2xl border px-4 py-2 text-2xl font-semibold ${scoreColor}`}
-          >
-            {manufacturer.score}%
           </div>
         </div>
+        <span
+          className={`rounded-md border px-2.5 py-1 text-xs font-semibold ${
+            isHigh
+              ? "border-rose-200 bg-rose-50 text-rose-700"
+              : isMedium
+                ? "border-amber-200 bg-amber-50 text-amber-700"
+                : "border-green-200 bg-green-50 text-green-700"
+          }`}
+        >
+          {manufacturer.risk} Risk
+        </span>
+      </div>
 
-        <div className="space-y-3 text-sm">
-          <AuditMeta label="License ID" value={manufacturer.licenseId} />
-          <AuditMeta label="Last Audit" value={manufacturer.lastAudit} />
-          <AuditMeta label="Next Audit" value={manufacturer.nextAudit} />
-          <AuditMeta label="Open Findings" value={manufacturer.findings} />
+      <div className="mb-4 flex items-center justify-between rounded-md bg-gray-50 p-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            Audit Score
+          </p>
+          <p className="mt-1 text-sm text-gray-500">{manufacturer.status}</p>
+        </div>
+        <div className={`rounded-md border px-3 py-1.5 text-xl font-semibold ${scoreColor}`}>
+          {manufacturer.score}%
+        </div>
+      </div>
+
+      <div className="space-y-2 text-sm">
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-gray-500">License ID</span>
+          <span className="font-mono text-xs font-medium text-gray-900">{manufacturer.licenseId}</span>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-gray-500">Last Audit</span>
+          <span className="font-medium text-gray-900">{manufacturer.lastAudit}</span>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-gray-500">Next Audit</span>
+          <span className="font-medium text-gray-900">{manufacturer.nextAudit}</span>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-gray-500">Open Findings</span>
+          <span className="font-medium text-gray-900">{manufacturer.findings}</span>
         </div>
       </div>
     </div>
   );
 }
 
-function AuditMeta({ label, value }) {
+function Panel({ title, icon: Icon, children, className = "" }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="text-slate-500">{label}</span>
-      <span className="font-semibold text-slate-900">{value}</span>
-    </div>
-  );
-}
-
-function Panel({ title, icon: Icon, children }) {
-  return (
-    <section className="relative overflow-hidden rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
-      <div className="pointer-events-none absolute right-0 top-0 h-28 w-28 rounded-full bg-blue-100/70 blur-2xl" />
-
-      <div className="relative z-10">
-        <div className="mb-5 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
-            <Icon className="h-5 w-5" />
+    <div className={`overflow-hidden rounded-lg border border-blue-200 bg-white shadow-sm flex flex-col ${className}`}>
+      <div className="border-b border-blue-200 bg-blue-50 px-4 py-3 flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-100 text-blue-600">
+            <Icon className="h-4 w-4" />
           </div>
-          <h3 className="text-xl font-semibold text-blue-950">{title}</h3>
+          <h3 className="font-semibold text-gray-900">{title}</h3>
         </div>
-
-        {children}
       </div>
-    </section>
+      <div className="p-4 flex-1">{children}</div>
+    </div>
   );
 }
 
@@ -728,30 +1159,36 @@ function AuditTrendChart({ data }) {
   const max = Math.max(...data.flatMap((item) => [item.audits, item.findings]));
 
   return (
-    <div>
-      <div className="mb-5 flex items-center gap-5 text-xs font-semibold text-slate-500">
-        <LegendDot color="bg-blue-600" label="Audit events" />
-        <LegendDot color="bg-rose-500" label="Findings" />
+    <div className="h-full flex flex-col">
+      <div className="mb-2 flex items-center gap-4 text-xs font-medium text-gray-500 flex-shrink-0">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+          Audit events
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-rose-500" />
+          Findings
+        </span>
       </div>
 
-      <div className="flex h-72 items-end gap-4 rounded-3xl bg-slate-50 p-5">
+      <div className="flex-1 flex items-end gap-3 rounded-md bg-gray-50 p-3">
         {data.map((item) => {
           const auditHeight = (item.audits / max) * 100;
           const findingHeight = (item.findings / max) * 100;
 
           return (
-            <div key={item.month} className="flex flex-1 flex-col items-center">
-              <div className="flex h-52 w-full items-end justify-center gap-1.5">
+            <div key={item.month} className="flex flex-1 flex-col items-center h-full justify-end">
+              <div className="flex w-full items-end justify-center gap-1" style={{ height: '80%' }}>
                 <div
-                  className="w-5 rounded-t-xl bg-gradient-to-t from-blue-700 to-blue-400"
+                  className="w-4 rounded-t-md bg-blue-600 transition-all duration-300"
                   style={{ height: `${auditHeight}%` }}
                 />
                 <div
-                  className="w-5 rounded-t-xl bg-gradient-to-t from-rose-600 to-rose-300"
+                  className="w-4 rounded-t-md bg-rose-500 transition-all duration-300"
                   style={{ height: `${findingHeight}%` }}
                 />
               </div>
-              <p className="mt-3 text-xs font-semibold text-slate-500">
+              <p className="mt-2 text-xs font-medium text-gray-500 flex-shrink-0">
                 {item.month}
               </p>
             </div>
@@ -765,27 +1202,25 @@ function AuditTrendChart({ data }) {
 function ChecklistRow({ item }) {
   const color =
     item.completion >= 85
-      ? "bg-emerald-500"
+      ? "bg-green-500"
       : item.completion >= 75
         ? "bg-blue-500"
         : "bg-amber-500";
 
   return (
-    <div className="rounded-2xl bg-slate-50 p-4">
-      <div className="mb-3 flex items-start justify-between gap-4">
-        <div>
-          <h4 className="font-semibold text-slate-900">{item.title}</h4>
-          <p className="mt-1 text-sm leading-6 text-slate-500">
+    <div className="rounded-md bg-gray-50 p-3">
+      <div className="mb-2 flex items-start justify-between gap-3">
+        <div className="flex-1">
+          <h4 className="text-sm font-semibold text-gray-900">{item.title}</h4>
+          <p className="mt-0.5 text-xs text-gray-500 line-clamp-2">
             {item.description}
           </p>
         </div>
-
-        <span className="font-semibold text-blue-950">
+        <span className="text-sm font-semibold text-gray-900 flex-shrink-0">
           {item.completion}%
         </span>
       </div>
-
-      <div className="h-2.5 overflow-hidden rounded-full bg-white">
+      <div className="h-1.5 overflow-hidden rounded-full bg-white">
         <div
           className={`h-full rounded-full ${color}`}
           style={{ width: `${item.completion}%` }}
@@ -797,16 +1232,16 @@ function ChecklistRow({ item }) {
 
 function SeverityBadge({ severity }) {
   const styles = {
-    Critical: "bg-rose-100 text-rose-700 border-rose-300",
-    High: "bg-orange-100 text-orange-700 border-orange-300",
-    Medium: "bg-amber-100 text-amber-700 border-amber-300",
-    Low: "bg-emerald-100 text-emerald-700 border-emerald-300",
+    Critical: "bg-rose-50 text-rose-700 border-rose-200",
+    High: "bg-orange-50 text-orange-700 border-orange-200",
+    Medium: "bg-amber-50 text-amber-700 border-amber-200",
+    Low: "bg-green-50 text-green-700 border-green-200",
   };
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${
-        styles[severity] || "bg-slate-100 text-slate-700 border-slate-300"
+      className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-semibold ${
+        styles[severity] || "bg-gray-50 text-gray-700 border-gray-200"
       }`}
     >
       {severity}
@@ -816,7 +1251,7 @@ function SeverityBadge({ severity }) {
 
 function StatusBadge({ status }) {
   const styles = {
-    Closed: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    Closed: "bg-green-50 text-green-700 border-green-200",
     Open: "bg-rose-50 text-rose-700 border-rose-200",
     "Under Review": "bg-blue-50 text-blue-700 border-blue-200",
     Escalated: "bg-orange-50 text-orange-700 border-orange-200",
@@ -824,8 +1259,8 @@ function StatusBadge({ status }) {
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${
-        styles[status] || "bg-slate-100 text-slate-700 border-slate-300"
+      className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-semibold ${
+        styles[status] || "bg-gray-50 text-gray-700 border-gray-200"
       }`}
     >
       {status}
@@ -833,21 +1268,71 @@ function StatusBadge({ status }) {
   );
 }
 
-function AuditDetailCard({ event }) {
+function AuditRow({ event, onView }) {
   return (
-    <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-start justify-between gap-4">
+    <tr className="transition-colors hover:bg-blue-50/40">
+      <td className="border-r border-blue-100 px-4 py-3">
+        <span className="font-mono text-sm font-medium text-blue-700">
+          {event.auditId}
+        </span>
+       </td>
+      <td className="border-r border-blue-100 px-4 py-3 text-sm text-gray-600">
+        {event.timestamp}
+       </td>
+      <td className="border-r border-blue-100 px-4 py-3">
+        <p className="text-sm font-semibold text-gray-900">{event.actor}</p>
+        <p className="text-xs text-gray-500">{event.role}</p>
+        </td>
+      <td className="border-r border-blue-100 px-4 py-3">
+        <p className="text-sm font-medium text-gray-900">{event.module}</p>
+        <p className="text-xs text-gray-500 font-mono">{event.ipAddress}</p>
+        </td>
+      <td className="border-r border-blue-100 px-4 py-3">
+        <p className="text-sm font-medium text-gray-900">{event.entity}</p>
+        <p className="text-xs text-gray-500">{event.entityType}</p>
+        </td>
+      <td className="border-r border-blue-100 px-4 py-3 text-sm text-gray-700">
+        {event.auditType}
+        </td>
+      <td className="border-r border-blue-100 px-4 py-3">
+        <SeverityBadge severity={event.severity} />
+        </td>
+      <td className="border-r border-blue-100 px-4 py-3">
+        <StatusBadge status={event.status} />
+        </td>
+      <td className="border-r border-blue-100 px-4 py-3">
+        <div className="flex items-center gap-1 text-sm text-gray-600">
+          <MapPin className="h-3 w-3 text-blue-600" />
+          {event.region}
+        </div>
+        </td>
+      <td className="px-4 py-3">
+        <button 
+          onClick={onView}
+          className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1 text-sm font-medium text-gray-600 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+        >
+          <Eye className="h-3.5 w-3.5" />
+          View
+        </button>
+        </td>
+    </tr>
+  );
+}
+
+function AuditDetailCard({ event, onMarkVerified, onGenerateReport, onAssignOfficer }) {
+  return (
+    <div className="rounded-lg border border-blue-200 bg-white p-4 shadow-sm">
+      <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <p className="font-mono text-sm text-slate-500">{event.auditId}</p>
-          <h3 className="mt-2 text-lg font-semibold text-blue-950">
+          <p className="font-mono text-xs text-gray-500">{event.auditId}</p>
+          <h3 className="mt-1 text-base font-semibold text-gray-900">
             {event.action}
           </h3>
         </div>
-
         <SeverityBadge severity={event.severity} />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-2 sm:grid-cols-2">
         <DetailBlock title="Reference" text={event.reference} />
         <DetailBlock title="Module" text={event.module} />
         <DetailBlock title="Actor" text={`${event.actor} · ${event.role}`} />
@@ -858,17 +1343,26 @@ function AuditDetailCard({ event }) {
         <DetailBlock title="Audit Remarks" text={event.remarks} />
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-2">
-        <button className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
-          <CheckCircle2 className="h-4 w-4" />
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button 
+          onClick={onMarkVerified}
+          className="inline-flex items-center gap-1.5 rounded-md border border-green-200 bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 transition-colors hover:bg-green-100"
+        >
+          <CheckCircle2 className="h-3.5 w-3.5" />
           Mark Verified
         </button>
-        <button className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
-          <FileCheck2 className="h-4 w-4" />
+        <button 
+          onClick={onGenerateReport}
+          className="inline-flex items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100"
+        >
+          <FileCheck2 className="h-3.5 w-3.5" />
           Generate Report
         </button>
-        <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600">
-          <UserCheck className="h-4 w-4" />
+        <button 
+          onClick={onAssignOfficer}
+          className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
+        >
+          <UserCheck className="h-3.5 w-3.5" />
           Assign Officer
         </button>
       </div>
@@ -878,28 +1372,11 @@ function AuditDetailCard({ event }) {
 
 function DetailBlock({ title, text }) {
   return (
-    <div className="rounded-2xl bg-slate-50 p-4">
-      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
+    <div className="rounded-md bg-gray-50 p-3">
+      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
         {title}
       </p>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{text}</p>
+      <p className="mt-1 text-sm text-gray-700 break-words">{text}</p>
     </div>
-  );
-}
-
-function LegendDot({ color, label }) {
-  return (
-    <span className="inline-flex items-center gap-2">
-      <span className={`h-2.5 w-2.5 rounded-full ${color}`} />
-      {label}
-    </span>
-  );
-}
-
-function TableHead({ children }) {
-  return (
-    <th className="px-5 py-4 text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
-      {children}
-    </th>
   );
 }
