@@ -36,10 +36,10 @@ const items = [
 ];
 
 const heights = [
-  "h-[235px] sm:h-[255px] lg:h-[275px]",
-  "h-[255px] sm:h-[275px] lg:h-[295px]",
-  "h-[275px] sm:h-[295px] lg:h-[315px]",
-  "h-[295px] sm:h-[315px] lg:h-[335px]",
+  "min-h-[235px] sm:min-h-[255px] lg:min-h-[275px] h-auto",
+  "min-h-[255px] sm:min-h-[275px] lg:min-h-[295px] h-auto",
+  "min-h-[275px] sm:min-h-[295px] lg:min-h-[315px] h-auto",
+  "min-h-[295px] sm:min-h-[315px] lg:min-h-[335px] h-auto",
 ];
 
 const StyledWrap = styled.section`
@@ -75,6 +75,8 @@ const StyledWrap = styled.section`
     );
     box-shadow: 0 24px 50px rgba(37, 99, 235, 0.12);
     transition: box-shadow 0.35s ease, transform 0.35s ease;
+    display: flex;
+    flex-direction: column;
   }
 
   .pillar-card:hover {
@@ -115,7 +117,7 @@ const StyledWrap = styled.section`
     position: relative;
     z-index: 2;
     display: flex;
-    height: 100%;
+    flex: 1;
     flex-direction: column;
     padding: 1.4rem 1rem 0.9rem;
   }
@@ -240,8 +242,8 @@ const pillarVariants = {
 
 export default function AyushmanSection() {
   return (
-    <section className="relative overflow-hidden bg-white py-24">
-      <StyledWrap className="relative mx-auto max-w-7xl px-6 lg:px-8">
+    <section className="relative overflow-hidden bg-white py-12 sm:py-20 lg:py-24">
+      <StyledWrap className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-gradient-to-b from-white via-blue-50/40 to-white" />
           <div className="absolute -right-32 top-1/2 h-96 w-96 rounded-full bg-blue-100/70 blur-3xl" />
@@ -278,7 +280,7 @@ export default function AyushmanSection() {
               </span>
             </h2>
 
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-600">
+            <p className="mx-auto mt-4 sm:mt-5 max-w-2xl text-sm sm:text-base leading-relaxed text-slate-600">
               The platform supports healthcare scheme governance workflows while remaining ready for future ABDM and ABHA extensions.
             </p>
 
@@ -297,7 +299,7 @@ export default function AyushmanSection() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, amount: 0.2 }}
-              className="grid items-end gap-5 sm:grid-cols-2 lg:grid-cols-4"
+              className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:items-end"
             >
               {items.map((item, index) => {
                 const Icon = item.icon;

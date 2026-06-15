@@ -71,7 +71,7 @@ export default function RegulatorySidebar({
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-4 pb-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-4 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
         {regulatoryNavigation.map((item) => {
           const Icon = item.icon;
           const isActive = activeModule === item.id;

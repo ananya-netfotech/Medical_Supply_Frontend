@@ -1,4 +1,4 @@
-import { Building2, Factory, Landmark, UserRound, CheckCircle2, Shield, Zap, Eye, Settings, TrendingUp, Clock, Users, ArrowRight } from "lucide-react";
+import { Building2, Factory, Landmark, UserRound, CheckCircle2, Shield, Zap, Eye, Settings, TrendingUp, Clock, Users, ArrowRight, Store, Truck, Smartphone, Microscope, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SectionHeader from "./SectionHeader";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +13,11 @@ const stakeholders = [
     metrics: { label: "Active Regulators", value: "35+", change: "+12%" },
     color: "blue",
     capabilities: ["Real-time dashboards", "Automated alerts", "Compliance reports"],
+    logosTitle: "Example Authorities",
+    exampleLogos: [
+      { name: "CDSCO", icon: Shield },
+      { name: "State FDA", icon: Landmark },
+    ]
   },
   {
     title: "Manufacturer",
@@ -23,6 +28,11 @@ const stakeholders = [
     metrics: { label: "Active Manufacturers", value: "500+", change: "+18%" },
     color: "emerald",
     capabilities: ["Batch management", "Quality control", "Distribution tracking"],
+    logosTitle: "Example Entities",
+    exampleLogos: [
+      { name: "Pharma Co.", icon: Factory },
+      { name: "Testing Labs", icon: Microscope },
+    ]
   },
   {
     title: "Pharmacy / Distributor",
@@ -33,6 +43,11 @@ const stakeholders = [
     metrics: { label: "Partner Outlets", value: "50K+", change: "+25%" },
     color: "orange",
     capabilities: ["POS integration", "Inventory sync", "Claim processing"],
+    logosTitle: "Example Channels",
+    exampleLogos: [
+      { name: "Retail Pharmacies", icon: Store },
+      { name: "Logistics", icon: Truck },
+    ]
   },
   {
     title: "Citizen",
@@ -43,6 +58,11 @@ const stakeholders = [
     metrics: { label: "Registered Citizens", value: "100M+", change: "+32%" },
     color: "rose",
     capabilities: ["Mobile access", "QR verification", "Health records"],
+    logosTitle: "End Users",
+    exampleLogos: [
+      { name: "Mobile App", icon: Smartphone },
+      { name: "Patients", icon: Heart },
+    ]
   },
 ];
 
@@ -76,7 +96,7 @@ export default function StakeholderSection() {
         bg: "bg-blue-50",
         text: "text-blue-600",
         border: "border-blue-200",
-        hover: "hover:border-blue-300",
+        hover: "hover:border-blue-400 hover:shadow-[0_20px_40px_-15px_rgba(59,130,246,0.3)] hover:ring-4 hover:ring-blue-500/10",
         iconBg: "from-blue-600 to-indigo-600",
         badge: "bg-blue-100 text-blue-700",
       },
@@ -84,7 +104,7 @@ export default function StakeholderSection() {
         bg: "bg-emerald-50",
         text: "text-emerald-600",
         border: "border-emerald-200",
-        hover: "hover:border-emerald-300",
+        hover: "hover:border-emerald-400 hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)] hover:ring-4 hover:ring-emerald-500/10",
         iconBg: "from-emerald-600 to-teal-600",
         badge: "bg-emerald-100 text-emerald-700",
       },
@@ -92,7 +112,7 @@ export default function StakeholderSection() {
         bg: "bg-orange-50",
         text: "text-orange-600",
         border: "border-orange-200",
-        hover: "hover:border-orange-300",
+        hover: "hover:border-orange-400 hover:shadow-[0_20px_40px_-15px_rgba(249,115,22,0.3)] hover:ring-4 hover:ring-orange-500/10",
         iconBg: "from-orange-600 to-amber-600",
         badge: "bg-orange-100 text-orange-700",
       },
@@ -100,7 +120,7 @@ export default function StakeholderSection() {
         bg: "bg-rose-50",
         text: "text-rose-600",
         border: "border-rose-200",
-        hover: "hover:border-rose-300",
+        hover: "hover:border-rose-400 hover:shadow-[0_20px_40px_-15px_rgba(244,63,94,0.3)] hover:ring-4 hover:ring-rose-500/10",
         iconBg: "from-rose-600 to-pink-600",
         badge: "bg-rose-100 text-rose-700",
       },
@@ -111,7 +131,7 @@ export default function StakeholderSection() {
   return (
     <section 
       ref={sectionRef}
-      className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50/20 py-24"
+      className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50/20 py-12 sm:py-20 lg:py-24"
     >
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
@@ -144,14 +164,14 @@ export default function StakeholderSection() {
             </span>
           </h2>
           
-          <p className="mt-6 text-lg leading-relaxed text-slate-600 md:text-xl">
+          <p className="mt-4 sm:mt-6 text-sm sm:text-lg leading-relaxed text-slate-600 md:text-xl">
             Each role gets a focused dashboard with relevant actions, data visibility and access restrictions.
           </p>
         </div>
 
         {/* Stakeholder Cards Grid */}
-        <div className="mt-16">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 sm:mt-16">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
             {stakeholders.map((stakeholder, index) => {
               const Icon = stakeholder.icon;
               const colors = getColorClasses(stakeholder.color);
@@ -171,23 +191,23 @@ export default function StakeholderSection() {
                   onMouseLeave={() => setHoveredCard(null)}
                 >
                   {/* Card Container */}
-                  <div className={`relative h-full overflow-hidden rounded-3xl border ${colors.border} bg-white shadow-sm transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${colors.hover}`}>
+                  <div className={`relative flex flex-col h-full overflow-hidden rounded-[2rem] border ${colors.border} bg-white shadow-sm transition-all duration-500 hover:-translate-y-2 ${colors.hover}`}>
                     
                     {/* Gradient Top Bar */}
                     <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${stakeholder.gradient} transition-all duration-300 group-hover:h-2`} />
 
                     {/* Icon Section */}
-                    <div className="p-6 pb-4">
+                    <div className="p-5 sm:p-6 pb-4">
                       <div className="relative">
                         <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${stakeholder.gradient} opacity-10 blur-xl transition-opacity duration-300 group-hover:opacity-20`} />
                         <div className={`relative inline-flex rounded-2xl bg-gradient-to-br ${stakeholder.bgGradient} p-3 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:shadow-md`}>
-                          <Icon className={`h-7 w-7 bg-gradient-to-br ${stakeholder.gradient} bg-clip-text text-transparent`} />
+                          <Icon className={`h-7 w-7 ${colors.text}`} />
                         </div>
                       </div>
 
                       {/* Title with Icon */}
                       <div className="mt-4 flex items-start justify-between">
-                        <h3 className="text-xl font-black text-slate-900">
+                        <h3 className="text-lg sm:text-xl font-black text-slate-900">
                           {stakeholder.title}
                         </h3>
                         <Shield className={`h-5 w-5 ${colors.text} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
@@ -204,7 +224,7 @@ export default function StakeholderSection() {
                     </div>
 
                     {/* Features List */}
-                    <div className="border-t border-slate-100 px-6 py-4">
+                    <div className="border-t border-slate-100 px-5 sm:p-6 py-4">
                       <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
                         Key Capabilities
                       </p>
@@ -218,25 +238,39 @@ export default function StakeholderSection() {
                       </ul>
                     </div>
 
-                    {/* Additional Capabilities (Reveal on Hover) */}
-                    <div className={`overflow-hidden transition-all duration-300 ${
-                      isHovered ? "max-h-32 opacity-100" : "max-h-0 opacity-0"
-                    }`}>
-                      <div className="border-t border-slate-100 px-6 py-4">
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                          Platform Features
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {stakeholder.capabilities.map((cap, idx) => (
-                            <span
-                              key={idx}
-                              className={`inline-flex items-center gap-1 rounded-full ${colors.bg} ${colors.text} px-2 py-1 text-xs font-medium`}
-                            >
-                              <Zap size={10} />
-                              {cap}
-                            </span>
-                          ))}
-                        </div>
+                    {/* Additional Capabilities */}
+                    <div className="border-t border-slate-100 px-5 sm:p-6 py-4">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        Platform Features
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {stakeholder.capabilities.map((cap, idx) => (
+                          <span
+                            key={idx}
+                            className={`inline-flex items-center gap-1 rounded-full ${colors.bg} ${colors.text} px-2 py-1 text-xs font-medium`}
+                          >
+                            <Zap size={10} />
+                            {cap}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Example Logos Section */}
+                    <div className="mt-auto px-5 sm:px-6 pb-6 pt-2">
+                      <p className="mb-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center">
+                        {stakeholder.logosTitle}
+                      </p>
+                      <div className="flex flex-wrap items-center justify-center gap-3">
+                        {stakeholder.exampleLogos.map((logo, idx) => {
+                          const LogoIcon = logo.icon;
+                          return (
+                            <div key={idx} className={`flex items-center gap-1.5 rounded-lg border border-slate-100 bg-slate-50/50 px-2.5 py-1.5 transition-all duration-300 hover:bg-white hover:shadow-sm hover:border-slate-200 group/logo`}>
+                              <LogoIcon className={`h-3.5 w-3.5 ${colors.text} transition-transform duration-300 group-hover/logo:scale-110`} />
+                              <span className="text-xs font-semibold text-slate-600">{logo.name}</span>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
 

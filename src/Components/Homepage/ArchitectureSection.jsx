@@ -170,11 +170,11 @@ export default function ArchitectureSection() {
   }, [isInView, controls]);
 
   return (
-    <section className="relative overflow-hidden bg-white py-24">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section className="relative overflow-hidden bg-white py-12 sm:py-20 lg:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div
           ref={containerRef}
-          className="relative overflow-hidden rounded-[2rem] bg-[#07111f] px-6 py-10 text-white shadow-[0_30px_90px_rgba(15,23,42,0.22)] lg:px-8"
+          className="relative overflow-hidden rounded-2xl sm:rounded-[2rem] bg-[#07111f] px-4 py-8 sm:px-6 sm:py-10 text-white shadow-[0_30px_90px_rgba(15,23,42,0.22)] lg:px-8 lg:py-12"
         >
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
@@ -224,7 +224,7 @@ export default function ArchitectureSection() {
               </span>
             </h2>
 
-            <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-blue-100/75 lg:text-base">
+            <p className="mx-auto mt-4 sm:mt-5 max-w-2xl text-xs sm:text-sm leading-relaxed text-blue-100/75 lg:text-base">
               The platform is designed with standard enterprise technologies for controlled access, traceability, analytics and operational monitoring.
             </p>
 
@@ -376,7 +376,7 @@ export default function ArchitectureSection() {
 </div>
 
           {/* Mobile workflow */}
-          <div className="relative z-10 mt-8 grid gap-4 lg:hidden">
+          <div className="relative z-10 mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:hidden">
             {layers.map((layer, index) => (
               <ArchitectureCard
                 key={layer.title}
@@ -399,9 +399,9 @@ export default function ArchitectureSection() {
                 transition: { duration: 0.45, delay: 0.35 },
               },
             }}
-            className="relative z-10 mt-6 rounded-xl border border-blue-300/20 bg-white/[0.04] px-4 py-3 backdrop-blur-sm"
+            className="relative z-10 mt-6 rounded-xl border border-blue-300/20 bg-white/[0.04] px-3 py-2.5 sm:px-4 sm:py-3 backdrop-blur-sm"
           >
-            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs font-medium uppercase tracking-wider text-blue-200">
+            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 sm:gap-x-3 sm:gap-y-1 text-[10px] sm:text-xs font-medium uppercase tracking-wider text-blue-200">
               <span>Frontend</span>
               <span className="text-blue-400">→</span>
               <span>Node.js APIs</span>

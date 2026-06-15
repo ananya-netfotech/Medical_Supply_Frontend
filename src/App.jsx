@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import SignInPage from "./pages/SignInPage";
+import HomePage from "./Pages/Homepage";
+import SignInPage from "./Pages/SignInPage";
 
 import GovernmentDashboard from "./Pages/Government/GovernmentDashboard";
-import RegulatoryDashboard from "./Pages/Government/pages/RegulatoryDashboard";
+import RegulatoryDashboard from "./Pages/Government/RegulatoryDashboard";
 
 import ManufacturerDashboard from "./Pages/Manufacturer/pages/ManufacturerDashboard";
 // import RegulatoryDashboard from "./pages/dashboards/RegulatoryDashboard";
@@ -46,11 +46,11 @@ export default function App() {
           {/* element={<CitizenDashboard />} */}
         {/* /> */}
 
-        Optional redirect
+        {/* Optional redirect */}
         {/* <Route path="/dashboard" element={<Navigate to="/signin" replace />} /> */}
 
         {/* 404 */}
-        {/* <Route path="*" element={<NotFoundPage />} /> */} */
+        {/* <Route path="*" element={<NotFoundPage />} /> */}
       </Routes>
     </BrowserRouter>
   );

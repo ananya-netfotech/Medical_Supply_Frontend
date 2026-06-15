@@ -338,8 +338,7 @@ export default function RegulatoryTopbar({ sidebarOpen, setSidebarOpen, activeMo
         onUpdate={handleUpdateProfile}
       />
 
-      {/* Spacer for fixed topbar on mobile */}
-      <div className="h-16 lg:hidden" />
+
     </>
   );
 }
