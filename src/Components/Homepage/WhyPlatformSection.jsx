@@ -105,14 +105,14 @@ function ReasonCard({ item }) {
   const Icon = item.icon;
 
   return (
-    <motion.div variants={cardVariants}>
-      <div className="group relative h-full overflow-hidden rounded-[1.5rem] border border-blue-100 bg-white/95 p-[1px] shadow-[0_12px_40px_rgba(15,23,42,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_60px_rgba(37,99,235,0.14)]">
-        <div className="relative h-full rounded-[calc(1.5rem-1px)] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FAFC_100%)] p-6">
+    <motion.div variants={cardVariants} className="h-full flex flex-col">
+      <div className="group relative min-h-[220px] h-auto flex flex-col overflow-hidden rounded-2xl sm:rounded-[1.5rem] border border-blue-100 bg-white/95 p-[1px] shadow-[0_12px_40px_rgba(15,23,42,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_60px_rgba(37,99,235,0.14)]">
+        <div className="relative flex-1 flex flex-col rounded-[calc(1.5rem-1px)] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FAFC_100%)] p-5 sm:p-6">
           <div className="pointer-events-none absolute right-0 top-0 h-20 w-20 rounded-full bg-blue-100 blur-2xl opacity-80" />
           <div className="pointer-events-none absolute bottom-0 left-0 h-16 w-16 rounded-full bg-indigo-50 blur-2xl opacity-90" />
           <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
 
-          <div className="relative z-10">
+          <div className="relative z-10 flex flex-col flex-1">
             <div className="mb-5 flex items-center justify-between">
               <div
                 className={`inline-flex rounded-2xl bg-gradient-to-br ${item.bgGradient} p-3 ring-1 ring-blue-100 transition-all duration-300 group-hover:scale-110`}
@@ -131,11 +131,11 @@ function ReasonCard({ item }) {
               {item.title}
             </h3>
 
-            <p className="mt-3 text-sm leading-7 text-slate-600">
+            <p className="mt-3 text-sm leading-relaxed text-slate-600">
               {item.description}
             </p>
 
-            <div className="mt-5 flex items-center gap-2">
+            <div className="mt-auto pt-5 flex items-center gap-2">
               <div className={`h-1 w-8 rounded-full bg-gradient-to-r ${item.gradient}`} />
               <span className="text-xs font-semibold text-slate-500">
                 {item.stat} {item.statLabel}
@@ -161,13 +161,13 @@ function StatCard({ stat }) {
 
   return (
     <motion.div variants={cardVariants}>
-      <div className="group relative overflow-hidden rounded-2xl border border-blue-100 bg-white/95 p-6 text-center shadow-[0_12px_30px_rgba(15,23,42,0.06)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(37,99,235,0.12)]">
+      <div className="group relative overflow-hidden rounded-2xl border border-blue-100 bg-white/95 p-5 sm:p-6 text-center shadow-[0_12px_30px_rgba(15,23,42,0.06)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(37,99,235,0.12)]">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 to-indigo-600/0 transition-all group-hover:from-blue-600/5 group-hover:to-indigo-600/5" />
-        <Icon className="relative z-10 mx-auto mb-3 h-8 w-8 text-blue-600 opacity-70" />
-        <div className="relative z-10 text-2xl font-black text-slate-900">
+        <Icon className="relative z-10 mx-auto mb-3 h-7 w-7 sm:h-8 sm:w-8 text-blue-600 opacity-70" />
+        <div className="relative z-10 text-xl sm:text-2xl font-black text-slate-900">
           {stat.value}
         </div>
-        <div className="relative z-10 mt-1 text-xs font-medium text-slate-500">
+        <div className="relative z-10 mt-1 text-[10px] sm:text-xs font-medium text-slate-500">
           {stat.label}
         </div>
       </div>
@@ -179,7 +179,7 @@ export default function WhyPlatformSection() {
   const [isUnlocked, setIsUnlocked] = useState(false);
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-20">
+    <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-12 sm:py-20">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-blue-400/5 blur-3xl" />
         <div className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-indigo-400/5 blur-3xl" />
@@ -198,27 +198,27 @@ export default function WhyPlatformSection() {
             </span>
           </div>
 
-<h2 className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text pb-4 text-3xl font-black leading-tight  sm:text-4xl sm:leading-tight lg:text-5xl lg:leading-tight">
-  Why India needs end-to-end
-  <span className="relative mt-2 block pb-3">
-    medicine traceability
-    <svg
-      className="absolute bottom-0 left-0 right-0 h-2 w-full"
-      viewBox="0 0 200 8"
-      preserveAspectRatio="none"
-    >
-      <path
-        d="M0 4 Q 50 8 100 4 Q 150 0 200 4"
-        stroke="#3B82F6"
-        strokeWidth="2"
-        fill="none"
-        className="opacity-40"
-      />
-    </svg>
-  </span>
-</h2>
+          <h2 className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text pb-4 text-3xl font-black leading-tight  sm:text-4xl sm:leading-tight lg:text-5xl lg:leading-tight">
+            Why India needs end-to-end
+            <span className="relative mt-2 block pb-3">
+              medicine traceability
+              <svg
+                className="absolute bottom-0 left-0 right-0 h-2 w-full"
+                viewBox="0 0 200 8"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0 4 Q 50 8 100 4 Q 150 0 200 4"
+                  stroke="#3B82F6"
+                  strokeWidth="2"
+                  fill="none"
+                  className="opacity-40"
+                />
+              </svg>
+            </span>
+          </h2>
 
-          <p className="mt-6 text-lg leading-relaxed text-slate-600 md:text-xl">
+          <p className="mt-4 sm:mt-6 text-sm sm:text-lg leading-relaxed text-slate-600 md:text-xl">
             The platform is designed to improve operational visibility across pharmaceutical supply,
             healthcare benefit usage and compliance workflows.
           </p>
@@ -350,18 +350,17 @@ export default function WhyPlatformSection() {
                 initial="closed"
                 animate={isUnlocked ? "open" : "closed"}
               >
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
                   {platformStats.map((stat) => (
                     <StatCard key={stat.label} stat={stat} />
                   ))}
                 </div>
 
-                <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="mt-8 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
                   {reasons.map((item) => (
                     <ReasonCard key={item.title} item={item} />
                   ))}
                 </div>
-
               </motion.div>
             </motion.div>
           </div>
