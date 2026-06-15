@@ -1,73 +1,144 @@
-import { NavLink } from "react-router-dom";
-import { Factory } from "lucide-react";
-import manufacturerNavigation from "./manufacturerNavigation";
+import { Factory, LogOut, PackageCheck, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { manufacturerNavigation } from "./manufacturerNavigation";
 
-export default function ManufacturerSidebar() {
+export default function ManufacturerSidebar({
+  activeModule,
+  setActiveModule,
+  sidebarOpen,
+  setSidebarOpen,
+}) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate("/signin");
+  };
+
   return (
-    <aside className="w-72 bg-slate-950 text-white flex flex-col">
+    <aside
+      className={`fixed inset-y-0 left-0 z-50 flex w-[310px] flex-col border-r border-emerald-100 bg-white transition-transform duration-300 lg:translate-x-0 ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
+      <div className="relative overflow-hidden border-b border-emerald-100 px-5 py-5">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-100 blur-3xl" />
 
-      <div className="border-b border-slate-800 p-6">
+        <div className="relative flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="absolute inset-0 rounded-2xl bg-emerald-500/25 blur-xl" />
 
-        <div className="flex items-center gap-3">
+              <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-700/20">
+                <Factory className="h-6 w-6" />
+              </div>
+            </div>
 
-          <div className="bg-blue-900 p-3 rounded-xl">
-            <Factory size={24} />
+            <div>
+              <h1 className="text-lg font-semibold tracking-tight text-emerald-950">
+                TraceCare Bharat
+              </h1>
+
+              <p className="text-xs font-medium text-slate-500">
+                Manufacturer Portal
+              </p>
+            </div>
           </div>
 
-          <div>
-            <h2 className="font-bold text-lg">
-              Manufacturer Portal
-            </h2>
-
-            <p className="text-xs text-slate-400">
-              Pharmaceutical Operations
-            </p>
-          </div>
-
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
-
       </div>
 
-      <div className="flex-1 overflow-y-auto py-4">
+      <div className="px-4 py-4">
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-emerald-700 shadow-sm">
+              <PackageCheck className="h-5 w-5" />
+            </div>
 
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                Manufacturer Console
+              </p>
+
+              <p className="mt-1 text-sm font-semibold text-emerald-950">
+                Licensed Pharma Operations
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <nav className="flex-1 space-y-1 overflow-y-auto px-4 pb-4">
         {manufacturerNavigation.map((item) => {
           const Icon = item.icon;
+          const isActive = activeModule === item.id;
 
           return (
-            <NavLink
-              key={item.title}
-              to={item.path}
-              className={({ isActive }) =>
-                `mx-3 mb-2 flex items-center gap-3 rounded-xl px-4 py-3 transition
-                 ${
-                   isActive
-                     ? "bg-blue-900 text-white"
-                     : "text-slate-300 hover:bg-slate-800"
-                 }`
-              }
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => {
+                setActiveModule(item.id);
+                setSidebarOpen(false);
+              }}
+              className={`group relative w-full overflow-hidden rounded-2xl border px-4 py-3 text-left transition-all duration-300 ${
+                isActive
+                  ? "border-emerald-200 bg-emerald-50 shadow-sm"
+                  : "border-transparent hover:border-emerald-100 hover:bg-slate-50"
+              }`}
             >
-              <Icon size={20} />
+              <div
+                className={`absolute inset-y-3 left-0 w-1 rounded-r-full bg-gradient-to-b from-emerald-600 to-teal-600 transition-opacity ${
+                  isActive ? "opacity-100" : "opacity-0"
+                }`}
+              />
 
-              <span className="text-sm font-medium">
-                {item.title}
-              </span>
-            </NavLink>
+              <div className="flex items-start gap-3">
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all ${
+                    isActive
+                      ? "bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-700/20"
+                      : "bg-slate-100 text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-700"
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                </div>
+
+                <div className="min-w-0">
+                  <p
+                    className={`text-sm font-semibold ${
+                      isActive ? "text-emerald-950" : "text-slate-800"
+                    }`}
+                  >
+                    {item.label}
+                  </p>
+
+                  <p className="mt-0.5 line-clamp-1 text-xs leading-5 text-slate-500">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            </button>
           );
         })}
+      </nav>
+
+      <div className="border-t border-emerald-100 p-4">
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-red-100 hover:bg-red-50 hover:text-red-600"
+        >
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </button>
       </div>
-
-      <div className="border-t border-slate-800 p-4">
-        <div className="rounded-xl bg-slate-900 p-4">
-          <p className="text-xs text-slate-400">
-            Logged In As
-          </p>
-
-          <p className="font-semibold">
-            Sun Pharma
-          </p>
-        </div>
-      </div>
-
     </aside>
   );
 }

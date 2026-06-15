@@ -1,65 +1,70 @@
+import { useState } from "react";
+
 import ManufacturerSidebar from "../ManufacturerSidebar";
 import ManufacturerTopbar from "../ManufacturerTopbar";
 
+import ManufacturerOverview from "./ManufacturerOverview";
+import ManufacturerLicenses from "./ManufacturerLicenses";
+import ManufacturerBatchManagement from "./ManufacturerBatchManagement";
+import ManufacturerInventoryManagement from "./ManufacturerInventoryManagement";
+import ManufacturerStockTransfer from "./ManufacturerStockTransfer";
+import ManufacturerTransferHistory from "./ManufacturerTransferHistory";
+import ManufacturerRecallCompliance from "./ManufacturerRecallCompliance";
+import ManufacturerCitizenComplaints from "./ManufacturerCitizenComplaints";
+
 export default function ManufacturerDashboard() {
+  const [activeModule, setActiveModule] = useState("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const renderActiveModule = () => {
+    switch (activeModule) {
+      case "overview":
+        return <ManufacturerOverview />;
+
+      case "licenses":
+        return <ManufacturerLicenses />;
+
+      case "batches":
+        return <ManufacturerBatchManagement />;
+
+      case "inventory":
+        return <ManufacturerInventoryManagement />;
+
+      case "transfer-stock":
+        return <ManufacturerStockTransfer />;
+
+      case "transfer-history":
+        return <ManufacturerTransferHistory />;
+
+      case "compliance":
+        return <ManufacturerRecallCompliance />;
+
+      case "complaints":
+        return <ManufacturerCitizenComplaints />;
+
+      default:
+        return <ManufacturerOverview />;
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-slate-100">
+    <div className="min-h-screen bg-slate-50">
+      <ManufacturerSidebar
+        activeModule={activeModule}
+        setActiveModule={setActiveModule}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+      />
 
-      <ManufacturerSidebar />
+      <ManufacturerTopbar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        activeModule={activeModule}
+      />
 
-      <div className="flex-1 flex flex-col">
-
-        <ManufacturerTopbar />
-
-        <main className="flex-1 overflow-y-auto p-8">
-
-          <div className="grid md:grid-cols-4 gap-6">
-
-            <DashboardCard
-              title="Active Licenses"
-              value="12"
-            />
-
-            <DashboardCard
-              title="Medicine Batches"
-              value="248"
-            />
-
-            <DashboardCard
-              title="Inventory Units"
-              value="1.2M"
-            />
-
-            <DashboardCard
-              title="Compliance Alerts"
-              value="3"
-            />
-
-          </div>
-
-        </main>
-
-      </div>
-
-    </div>
-  );
-}
-
-function DashboardCard({
-  title,
-  value,
-}) {
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm">
-
-      <p className="text-slate-500 text-sm">
-        {title}
-      </p>
-
-      <h3 className="text-3xl font-bold mt-2">
-        {value}
-      </h3>
-
+      <main className="pt-20 lg:pl-[310px]">
+        <div className="p-4 lg:p-6">{renderActiveModule()}</div>
+      </main>
     </div>
   );
 }

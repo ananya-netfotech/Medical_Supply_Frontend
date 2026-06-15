@@ -10,60 +10,54 @@ import {
   Building2,
 } from "lucide-react";
 
-const manufacturerNavigation = [
+export const manufacturerNavigation = [
   {
-    title: "Dashboard Overview",
+    id: "overview",
+    label: "Dashboard Overview",
+    description: "Active licenses, batches, inventory and compliance summary",
     icon: LayoutDashboard,
-    path: "/dashboard/manufacturer",
   },
-
   {
-    title: "Licenses & Approvals",
+    id: "licenses",
+    label: "Licenses & Approvals",
+    description: "View CDSCO-issued manufacturing licenses",
     icon: FileCheck,
-    path: "/dashboard/manufacturer/licenses",
   },
-
   {
-    title: "Medicine Batch Management",
+    id: "batches",
+    label: "Medicine Batch Management",
+    description: "Create and manage medicine batches and lot numbers",
     icon: Pill,
-    path: "/dashboard/manufacturer/batches",
   },
-
   {
-    title: "Inventory Management",
+    id: "inventory",
+    label: "Inventory Management",
+    description: "Monitor manufactured and available medicine stock",
     icon: Boxes,
-    path: "/dashboard/manufacturer/inventory",
   },
-
   {
-    title: "Stock Transfer",
+    id: "transfer-stock",
+    label: "Stock Transfer",
+    description: "Transfer stock to Pharmacy / Distributor",
     icon: ArrowLeftRight,
-    path: "/dashboard/manufacturer/transfer-stock",
   },
-
   {
-    title: "Transfer History",
+    id: "transfer-history",
+    label: "Transfer History",
+    description: "View batch movement and ownership transfer records",
     icon: History,
-    path: "/dashboard/manufacturer/transfer-history",
   },
-
   {
-    title: "Recall & Compliance Alerts",
+    id: "compliance",
+    label: "Recall & Compliance Alerts",
+    description: "Track recalls, rejected transfers and license alerts",
     icon: ShieldAlert,
-    path: "/dashboard/manufacturer/compliance",
   },
-
   {
-    title: "Citizen Complaints",
+    id: "complaints",
+    label: "Citizen Complaints",
+    description: "Review complaints raised by citizens",
     icon: MessageSquareWarning,
-    path: "/dashboard/manufacturer/complaints",
   },
 
-  {
-    title: "Manufacturer Profile",
-    icon: Building2,
-    path: "/dashboard/manufacturer/profile",
-  },
 ];
-
-export default manufacturerNavigation;

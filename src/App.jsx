@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import SignInPage from "./pages/SignInPage";
+
 import GovernmentDashboard from "./Pages/Government/GovernmentDashboard";
 import RegulatoryDashboard from "./Pages/Government/pages/RegulatoryDashboard";
 
@@ -21,7 +22,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/Government" element={<GovernmentDashboard />} />
-<Route path="/RegulatoryDashboard" element={<RegulatoryDashboard />} />
+        <Route path="/RegulatoryDashboard" element={<RegulatoryDashboard />} />
         <Route path="/Manufacturer" element={<ManufacturerDashboard />} />
 
 
