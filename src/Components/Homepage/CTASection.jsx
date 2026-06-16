@@ -11,7 +11,7 @@ export default function CTASection() {
   const navigate = useNavigate();
 
   return (
-    <section className="relative overflow-hidden bg-white px-6 py-24">
+    <section className="relative overflow-hidden bg-white px-4 py-12 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
       {/* Background */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-white via-blue-50/40 to-white" />
@@ -21,8 +21,8 @@ export default function CTASection() {
       </div>
 
       <div className="relative mx-auto max-w-6xl">
-        <div className="relative overflow-hidden rounded-[2rem] border border-blue-100 bg-white p-[1px] shadow-[0_30px_90px_rgba(15,23,42,0.12)]">
-          <div className="relative overflow-hidden rounded-[calc(2rem-1px)] bg-[#07111f] px-6 py-14 text-center text-white sm:px-10 lg:px-16">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-[2rem] border border-blue-100 bg-white p-[1px] shadow-[0_30px_90px_rgba(15,23,42,0.12)]">
+          <div className="relative overflow-hidden rounded-[15px] sm:rounded-[calc(2rem-1px)] bg-[#07111f] px-4 py-10 text-center text-white sm:px-10 lg:px-16 lg:py-14">
             {/* Inner background effects */}
             <div className="pointer-events-none absolute inset-0">
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent" />
@@ -61,34 +61,34 @@ export default function CTASection() {
                 </span>
               </h2>
 
-              <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-blue-100/80 sm:text-lg">
+              <p className="mx-auto mt-4 sm:mt-5 max-w-2xl text-sm sm:text-base leading-relaxed sm:leading-8 text-blue-100/80">
                 Enter the platform to explore role-based dashboards for regulatory
                 authority, manufacturer, pharmacy/distributor and citizen workflows.
               </p>
 
               {/* Feature chips */}
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-white/5 px-4 py-2 text-sm text-blue-100 backdrop-blur-sm">
-                  <LayoutDashboard className="h-4 w-4 text-blue-300" />
+              <div className="mt-8 flex flex-wrap justify-center gap-2 sm:gap-3">
+                <div className="inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-white/5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-blue-100 backdrop-blur-sm">
+                  <LayoutDashboard className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-300" />
                   Role-based dashboards
                 </div>
 
-                <div className="inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-white/5 px-4 py-2 text-sm text-blue-100 backdrop-blur-sm">
-                  <ShieldCheck className="h-4 w-4 text-blue-300" />
+                <div className="inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-white/5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-blue-100 backdrop-blur-sm">
+                  <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-300" />
                   Controlled access
                 </div>
 
-                <div className="inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-white/5 px-4 py-2 text-sm text-blue-100 backdrop-blur-sm">
-                  <Users className="h-4 w-4 text-blue-300" />
+                <div className="inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-white/5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-blue-100 backdrop-blur-sm">
+                  <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-300" />
                   Multi-stakeholder workflows
                 </div>
               </div>
 
               {/* Buttons */}
-              <div className="mt-9 flex flex-wrap justify-center gap-4">
+              <div className="mt-8 sm:mt-9 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4 sm:px-0">
                 <button
                   onClick={() => navigate("/signin")}
-                  className="group inline-flex items-center gap-2 rounded-2xl bg-white px-8 py-4 font-semibold text-blue-950 shadow-lg shadow-blue-950/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-50 hover:shadow-xl"
+                  className="group inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-white px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold text-blue-950 shadow-lg shadow-blue-950/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-50 hover:shadow-xl w-full sm:w-auto"
                 >
                   Sign In
                   <ArrowRight
@@ -97,7 +97,7 @@ export default function CTASection() {
                   />
                 </button>
 
-                <button className="group inline-flex items-center gap-2 rounded-2xl border border-blue-200/30 bg-white/5 px-8 py-4 font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-200/50 hover:bg-white/10">
+                <button className="group inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl border border-blue-200/30 bg-white/5 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-200/50 hover:bg-white/10 w-full sm:w-auto">
                   Request Demonstration
                   <ArrowRight
                     size={18}
@@ -107,8 +107,8 @@ export default function CTASection() {
               </div>
 
               {/* Bottom indicator */}
-              <div className="mt-10 flex justify-center">
-                <div className="inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-white/[0.04] px-4 py-2 text-xs font-medium text-blue-100/70 backdrop-blur-sm">
+              <div className="mt-8 sm:mt-10 flex justify-center">
+                <div className="inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-white/[0.04] px-3.5 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs font-medium text-blue-100/70 backdrop-blur-sm">
                   <span className="h-1.5 w-1.5 rounded-full bg-blue-300 shadow-[0_0_14px_rgba(147,197,253,0.7)]" />
                   Traceability, claims, compliance and citizen visibility in one platform
                   <span className="h-1.5 w-1.5 rounded-full bg-blue-300 shadow-[0_0_14px_rgba(147,197,253,0.7)]" />
@@ -117,10 +117,10 @@ export default function CTASection() {
             </div>
 
             {/* Decorative corners */}
-            <div className="pointer-events-none absolute left-5 top-5 h-3 w-3 rounded-full border border-blue-200/40" />
-            <div className="pointer-events-none absolute right-5 top-5 h-3 w-3 rounded-full border border-blue-200/40" />
-            <div className="pointer-events-none absolute bottom-5 left-5 h-3 w-3 rounded-full border border-blue-200/40" />
-            <div className="pointer-events-none absolute bottom-5 right-5 h-3 w-3 rounded-full border border-blue-200/40" />
+            <div className="pointer-events-none absolute left-5 top-5 h-3 w-3 rounded-full border border-blue-200/40 hidden sm:block" />
+            <div className="pointer-events-none absolute right-5 top-5 h-3 w-3 rounded-full border border-blue-200/40 hidden sm:block" />
+            <div className="pointer-events-none absolute bottom-5 left-5 h-3 w-3 rounded-full border border-blue-200/40 hidden sm:block" />
+            <div className="pointer-events-none absolute bottom-5 right-5 h-3 w-3 rounded-full border border-blue-200/40 hidden sm:block" />
           </div>
         </div>
       </div>

@@ -5,86 +5,46 @@ import {
   Factory,
   Building2,
   User,
-  ArrowRight,
   LockKeyhole,
-  CheckCircle2,
-  ClipboardCheck,
   BadgeIndianRupee,
   Pill,
   Activity,
   Sparkles,
 } from "lucide-react";
 
+import RegulatorySignin from "../Components/SignInPage/RegulatorySignin";
+import ManufacturerSignin from "../Components/SignInPage/ManufacturerSignin";
+import PharmacySignin from "../Components/SignInPage/PharmacySignin";
+import CitizenSignin from "../Components/SignInPage/CitizenSignin";
+
 const roles = [
   {
     id: "REGULATORY_AUTHORITY",
     label: "Regulatory",
-    fullLabel: "Regulatory Authority",
-    description: "CDSCO / State Drug Control Authority",
     icon: ShieldCheck,
     route: "/RegulatoryDashboard",
     accent: "blue",
-    title: "Regulatory access",
-    text: "Review drug registration, licensing, compliance alerts, recall notices and audit-ready governance workflows.",
-    fields: [
-      { label: "Email / Mobile Number", placeholder: "Enter login ID", type: "text" },
-      { label: "Password", placeholder: "Enter password", type: "password" },
-      { label: "Authority Employee ID", placeholder: "CDSCO-EMP-001", type: "text" },
-    ],
-    highlights: ["Drug Registration", "License Oversight", "Compliance Monitoring"],
   },
   {
     id: "MANUFACTURER",
     label: "Manufacturer",
-    fullLabel: "Manufacturer",
-    description: "Licensed pharmaceutical manufacturer",
     icon: Factory,
     route: "/Manufacturer",
     accent: "emerald",
-    title: "Manufacturer access",
-    text: "Create medicine batches, manage licensed drug production, transfer inventory and maintain downstream traceability.",
-    fields: [
-      { label: "Email / Mobile Number", placeholder: "Enter login ID", type: "text" },
-      { label: "Password", placeholder: "Enter password", type: "password" },
-      { label: "Manufacturer License ID", placeholder: "LIC-MFG-CDSCO-2026-001", type: "text" },
-    ],
-    highlights: ["Batch Creation", "Inventory Transfer", "Recall Notices"],
   },
   {
     id: "PHARMACY_DISTRIBUTOR",
     label: "Pharmacy",
-    fullLabel: "Pharmacy / Distributor",
-    description: "Medicine inventory, dispensing and PM-JAY claims",
     icon: Building2,
     route: "/dashboard/pharmacy-distributor",
     accent: "amber",
-    title: "Pharmacy / distributor access",
-    text: "Track inventory, dispense medicines, submit PM-JAY claims, monitor expiry alerts and support medicine traceability.",
-    fields: [
-      { label: "Email / Mobile Number", placeholder: "Enter login ID", type: "text" },
-      { label: "Password", placeholder: "Enter password", type: "password" },
-      { label: "Pharmacy / Distributor License ID", placeholder: "LIC-PHR-STATE-2026-001", type: "text" },
-    ],
-    highlights: ["Inventory", "Dispensing", "PM-JAY Claims"],
   },
   {
     id: "CITIZEN",
     label: "Citizen",
-    fullLabel: "Citizen",
-    description: "Ayushman beneficiary medicine dashboard",
     icon: User,
     route: "/dashboard/citizen",
     accent: "rose",
-    title: "Citizen access",
-    text: "View medicines, PM-JAY claims, benefit visibility, recall alerts and future ABHA-linked health information.",
-    fields: [
-      { label: "Mobile / Login ID", placeholder: "Enter mobile or login ID", type: "text" },
-      { label: "Password", placeholder: "Enter password", type: "password" },
-      { label: "Aadhaar Last 4 Digits", placeholder: "1234", type: "text" },
-      { label: "PM-JAY Beneficiary ID", placeholder: "PMJAY-2026-0001", type: "text" },
-      { label: "ABHA ID Optional", placeholder: "14xxxxxxxxxx", type: "text" },
-    ],
-    highlights: ["My Medicines", "Claims", "Recall Alerts"],
   },
 ];
 
@@ -128,7 +88,6 @@ export default function SignInPage() {
   const [selectedRole, setSelectedRole] = useState("REGULATORY_AUTHORITY");
 
   const activeRole = roles.find((role) => role.id === selectedRole) || roles[0];
-  const ActiveIcon = activeRole.icon;
   const activeAccent = accentStyles[activeRole.accent];
 
   const handleLogin = () => {
@@ -144,7 +103,7 @@ export default function SignInPage() {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(37,99,235,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(37,99,235,0.025)_1px,transparent_1px)] bg-[size:42px_42px]" />
       </div>
 
-      <section className="relative mx-auto grid min-h-screen max-w-7xl items-center gap-10 px-6 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+      <section className="relative mx-auto grid min-h-screen max-w-7xl items-center gap-8 px-4 py-8 sm:gap-10 sm:px-6 sm:py-10 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
         {/* Brand / Context panel */}
         <div className="relative">
           <div className="mb-8 flex items-center gap-3">
@@ -193,7 +152,7 @@ export default function SignInPage() {
           <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-blue-200/50 via-transparent to-indigo-200/50 blur-2xl" />
 
           <div className="relative overflow-hidden rounded-[2rem] border border-blue-100 bg-white p-[1px] shadow-[0_35px_100px_rgba(15,23,42,0.14)]">
-            <div className="relative overflow-hidden rounded-[calc(2rem-1px)] bg-white p-6 sm:p-8">
+            <div className="relative overflow-hidden rounded-[calc(2rem-1px)] bg-white p-4 sm:p-6 md:p-8">
               <div className="pointer-events-none absolute right-0 top-0 h-44 w-44 rounded-full bg-blue-100 blur-3xl opacity-80" />
               <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 rounded-full bg-indigo-100 blur-3xl opacity-70" />
 
@@ -218,7 +177,7 @@ export default function SignInPage() {
 
                 {/* Role selector */}
                 <div className="rounded-3xl border border-slate-200 bg-slate-50 p-2">
-                  <div className="grid gap-2 sm:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {roles.map((role) => {
                       const Icon = role.icon;
                       const isActive = selectedRole === role.id;
@@ -258,63 +217,11 @@ export default function SignInPage() {
                   </div>
                 </div>
 
-                {/* Dynamic role summary */}
-                <div
-                  key={activeRole.id}
-                  className={`mt-6 animate-roleChange rounded-3xl border ${activeAccent.border} ${activeAccent.bg} p-5`}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className={`rounded-2xl bg-gradient-to-br ${activeAccent.gradient} p-3 text-white shadow-lg`}>
-                      <ActiveIcon className="h-6 w-6" />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-3">
-                       <h4 className="text-lg font-semibold text-blue-950">
-  {activeRole.title}
-</h4>
-
-                        <CheckCircle2 className={`h-5 w-5 shrink-0 ${activeAccent.text}`} />
-                      </div>
-
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
-                        {activeRole.text}
-                      </p>
-
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {activeRole.highlights.map((item) => (
-                          <span
-                            key={item}
-                            className="rounded-full border border-white/70 bg-white/70 px-3 py-1 text-xs font-semibold text-slate-600"
-                          >
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Inputs */}
-                <div key={`fields-${activeRole.id}`} className="mt-6 grid gap-4 animate-roleChange">
-                  {activeRole.fields.map((field) => (
-                    <Input
-                      key={field.label}
-                      label={field.label}
-                      placeholder={field.placeholder}
-                      type={field.type}
-                      accent={activeAccent}
-                    />
-                  ))}
-                </div>
-
-                <button
-                  onClick={handleLogin}
-                  className={`group mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r ${activeAccent.gradient} py-4 font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl`}
-                >
-                  Continue as {activeRole.fullLabel}
-                  <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-                </button>
+                {/* Dynamic role summary, Inputs, and Continue Button */}
+                {selectedRole === "REGULATORY_AUTHORITY" && <RegulatorySignin handleLogin={handleLogin} activeAccent={activeAccent} />}
+                {selectedRole === "MANUFACTURER" && <ManufacturerSignin handleLogin={handleLogin} activeAccent={activeAccent} />}
+                {selectedRole === "PHARMACY_DISTRIBUTOR" && <PharmacySignin handleLogin={handleLogin} activeAccent={activeAccent} />}
+                {selectedRole === "CITIZEN" && <CitizenSignin handleLogin={handleLogin} activeAccent={activeAccent} />}
 
                 <p className="mt-4 text-center text-xs leading-5 text-slate-400">
                   MVP demo flow. OAuth 2.0 / OIDC and backend authentication can be integrated later.
@@ -345,26 +252,10 @@ export default function SignInPage() {
   );
 }
 
-function Input({ label, placeholder, type = "text", accent }) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-bold text-slate-700">
-        {label}
-      </span>
-
-      <input
-        type={type}
-        placeholder={placeholder}
-        className={`w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-medium text-slate-900 outline-none transition-all duration-300 placeholder:text-slate-400 focus:ring-4 ${accent.ring}`}
-      />
-    </label>
-  );
-}
-
 function MiniCard({ icon: Icon, title, text }) {
   return (
-    <div className="rounded-2xl border border-blue-100 bg-white/80 p-4 shadow-sm backdrop-blur-sm">
-      <div className="mb-3 inline-flex rounded-xl bg-blue-50 p-2 text-blue-700">
+    <div className="rounded-2xl border border-blue-100 bg-white/80 p-3 sm:p-4 shadow-sm backdrop-blur-sm">
+      <div className="mb-2 sm:mb-3 inline-flex rounded-xl bg-blue-50 p-2 text-blue-700">
         <Icon className="h-4 w-4" />
       </div>
 

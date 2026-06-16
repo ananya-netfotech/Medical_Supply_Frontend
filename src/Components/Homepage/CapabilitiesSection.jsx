@@ -50,7 +50,7 @@ const capabilities = [
 
 export default function CapabilitiesSection() {
   return (
-    <section className="relative overflow-hidden bg-slate-50 py-24">
+    <section className="relative overflow-hidden bg-slate-50 py-12 sm:py-20 lg:py-24">
       {/* Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-50 via-white to-blue-50/50" />
@@ -60,7 +60,7 @@ export default function CapabilitiesSection() {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(37,99,235,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(37,99,235,0.035)_1px,transparent_1px)] bg-[size:40px_40px]" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="relative mx-auto max-w-3xl text-center">
           <div className="absolute -top-10 left-1/2 h-px w-20 -translate-x-1/2 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
@@ -93,7 +93,7 @@ export default function CapabilitiesSection() {
             </span>
           </h2>
 
-          <p className="relative mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-600 lg:text-lg">
+          <p className="relative mx-auto mt-4 sm:mt-5 max-w-2xl text-sm sm:text-base leading-relaxed text-slate-600">
             The MVP focuses on practical traceability, licensing, dispensing, claim visibility and controlled access.
           </p>
 
@@ -105,14 +105,14 @@ export default function CapabilitiesSection() {
         </div>
 
         {/* Cards */}
-        <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 sm:mt-12 lg:mt-14 grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {capabilities.map((item, index) => {
             const Icon = item.icon;
 
             return (
               <div
                 key={item.title}
-                className="group relative overflow-hidden rounded-2xl border-2 border-blue-100 bg-white p-6 opacity-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-xl"
+                className="group relative overflow-hidden rounded-2xl border-2 border-blue-100 bg-white p-5 sm:p-6 opacity-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-xl"
                 style={{
                   animationDelay: `${index * 100}ms`,
                   animation: "fadeInUp 0.5s ease-out forwards",
@@ -159,21 +159,21 @@ export default function CapabilitiesSection() {
         </div>
 
         {/* Bottom indicator */}
-        <div className="relative mt-12">
+        <div className="relative mt-8 sm:mt-12">
           <div className="absolute left-1/2 top-0 h-px w-32 -translate-x-1/2 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
 
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-6">
-            <div className="inline-flex items-center gap-3 rounded-full border border-blue-100 bg-gradient-to-r from-blue-50 to-white px-5 py-2.5 shadow-sm">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-4 sm:pt-6">
+            <div className="inline-flex items-center gap-2 sm:gap-3 rounded-full border border-blue-100 bg-gradient-to-r from-blue-50 to-white px-3.5 py-2 sm:px-5 sm:py-2.5 shadow-sm">
               <div className="h-2 w-2 animate-pulse rounded-full bg-blue-700" />
-              <span className="text-xs font-medium text-slate-600">
+              <span className="text-[10px] sm:text-xs font-medium text-slate-600">
                 MVP-ready healthcare traceability modules
               </span>
               <div className="h-2 w-2 animate-pulse rounded-full bg-blue-700" />
             </div>
 
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-4 py-2 shadow-sm">
-              <span className="text-xs font-semibold text-blue-950">6</span>
-              <span className="text-xs text-slate-600">core capabilities</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-3 py-1.5 sm:px-4 sm:py-2 shadow-sm">
+              <span className="text-[10px] sm:text-xs font-semibold text-blue-950">6</span>
+              <span className="text-[10px] sm:text-xs text-slate-600">core capabilities</span>
             </div>
           </div>
         </div>

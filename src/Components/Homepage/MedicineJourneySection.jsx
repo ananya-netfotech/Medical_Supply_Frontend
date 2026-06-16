@@ -25,8 +25,8 @@ export default function MedicineJourneySection() {
   });
 
   return (
-    <section className="relative overflow-hidden bg-white py-24">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section className="relative overflow-hidden bg-white py-12 sm:py-20 lg:py-24">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           center
           eyebrow="Medicine journey"
@@ -36,7 +36,7 @@ export default function MedicineJourneySection() {
 
         <div
           ref={sectionRef}
-          className="relative mt-14 overflow-hidden rounded-[2rem] border border-blue-100 bg-[#07111f] shadow-[0_30px_90px_rgba(15,23,42,0.22)]"
+          className="relative mt-8 sm:mt-12 lg:mt-14 overflow-hidden rounded-2xl sm:rounded-[2rem] border border-blue-100 bg-[#07111f] shadow-[0_30px_90px_rgba(15,23,42,0.22)]"
         >
           {/* Background glow */}
           <div className="pointer-events-none absolute inset-0">
@@ -54,17 +54,17 @@ export default function MedicineJourneySection() {
             <div className="absolute left-[88%] top-[26%] h-1 w-1 rounded-full bg-white/20" />
           </div>
 
-          <div className="relative px-6 pt-10 pb-6 sm:px-8 lg:px-10">
+          <div className="relative px-4 py-8 sm:px-8 lg:px-10 lg:py-10">
             <div className="mb-6 flex items-center gap-3">
               <div className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-blue-200 backdrop-blur-sm">
                 <Sparkles className="h-4 w-4" />
               </div>
 
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-200">
+                <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.18em] text-blue-200">
                   Medicine Lifecycle Timeline
                 </p>
-                <p className="mt-1 max-w-2xl text-sm leading-6 text-white/60">
+                <p className="mt-1 max-w-2xl text-[11px] sm:text-sm leading-relaxed sm:leading-6 text-white/60">
                   A connected traceability journey from registration to compliance audit.
                 </p>
               </div>
@@ -299,7 +299,7 @@ export default function MedicineJourneySection() {
             </div>
 
             {/* Mobile timeline */}
-            <div className="mt-8 grid gap-5 lg:hidden">
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:hidden">
               {steps.map((step, index) => (
                 <motion.div
                   key={step}
@@ -313,22 +313,22 @@ export default function MedicineJourneySection() {
                     delay: hasEnteredView ? index * 0.08 : 0,
                     duration: 0.45,
                   }}
-                  className="relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5 p-5 backdrop-blur-sm"
+                  className="relative overflow-hidden rounded-xl sm:rounded-[1.5rem] border border-white/10 bg-white/5 p-4 sm:p-5 backdrop-blur-sm"
                 >
                   <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10 text-blue-200">
+                    <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-white/10 bg-white/10 text-blue-200">
                       <CircleDot className="h-4 w-4" />
                     </div>
 
-                    <div className="inline-flex rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-blue-100">
+                    <div className="inline-flex rounded-full bg-white/10 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-blue-100">
                       Step {index + 1}
                     </div>
                   </div>
 
-                  <h3 className="text-lg font-semibold text-white">{step}</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-white">{step}</h3>
 
                   <CheckCircle2
-                    className="mt-5 text-emerald-300"
+                    className="mt-4 sm:mt-5 text-emerald-300"
                     size={22}
                   />
                 </motion.div>
