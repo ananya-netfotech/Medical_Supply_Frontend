@@ -55,11 +55,11 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
         <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onClick={onClose} />
 
         <div className="relative w-full max-w-3xl rounded-2xl bg-white shadow-2xl">
-          {/* Header */}
+          {/* Header - Emerald theme */}
           <div className="flex items-center justify-between border-b border-slate-200 p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
-                <Settings className="h-5 w-5 text-blue-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+                <Settings className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-slate-900">Settings</h2>
@@ -78,7 +78,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
           <div className="max-h-[70vh] overflow-y-auto p-6">
             {/* Success Message */}
             {saveSuccess && (
-              <div className="mb-4 flex items-center gap-2 rounded-lg bg-green-50 p-3 text-green-700 border border-green-200">
+              <div className="mb-4 flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-emerald-700 border border-emerald-200">
                 <Save className="h-4 w-4" />
                 <p className="text-sm font-medium">Settings saved successfully!</p>
               </div>
@@ -87,7 +87,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
             {/* Notification Settings */}
             <div className="mb-6 rounded-lg border border-slate-200 p-4">
               <div className="mb-4 flex items-center gap-2">
-                <Bell className="h-5 w-5 text-blue-600" />
+                <Bell className="h-5 w-5 text-emerald-600" />
                 <h3 className="font-semibold text-slate-900">Notifications</h3>
               </div>
               
@@ -100,7 +100,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
                   <button
                     onClick={() => handleToggle("emailNotifications")}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                      settings.emailNotifications ? "bg-blue-600" : "bg-slate-200"
+                      settings.emailNotifications ? "bg-emerald-600" : "bg-slate-200"
                     }`}
                   >
                     <span
@@ -119,7 +119,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
                   <button
                     onClick={() => handleToggle("pushNotifications")}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                      settings.pushNotifications ? "bg-blue-600" : "bg-slate-200"
+                      settings.pushNotifications ? "bg-emerald-600" : "bg-slate-200"
                     }`}
                   >
                     <span
@@ -138,7 +138,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
                   <button
                     onClick={() => handleToggle("desktopNotifications")}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                      settings.desktopNotifications ? "bg-blue-600" : "bg-slate-200"
+                      settings.desktopNotifications ? "bg-emerald-600" : "bg-slate-200"
                     }`}
                   >
                     <span
@@ -156,7 +156,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
                   <select
                     value={settings.emailDigest}
                     onChange={(e) => handleChange("emailDigest", e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   >
                     <option value="instant">Instant</option>
                     <option value="daily">Daily Digest</option>
@@ -169,7 +169,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
             {/* Appearance Settings */}
             <div className="mb-6 rounded-lg border border-slate-200 p-4">
               <div className="mb-4 flex items-center gap-2">
-                <Moon className="h-5 w-5 text-blue-600" />
+                <Moon className="h-5 w-5 text-emerald-600" />
                 <h3 className="font-semibold text-slate-900">Appearance</h3>
               </div>
               
@@ -182,7 +182,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
                   <button
                     onClick={() => handleToggle("darkMode")}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                      settings.darkMode ? "bg-blue-600" : "bg-slate-200"
+                      settings.darkMode ? "bg-emerald-600" : "bg-slate-200"
                     }`}
                   >
                     <span
@@ -201,7 +201,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
                   <button
                     onClick={() => handleToggle("compactView")}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                      settings.compactView ? "bg-blue-600" : "bg-slate-200"
+                      settings.compactView ? "bg-emerald-600" : "bg-slate-200"
                     }`}
                   >
                     <span
@@ -217,7 +217,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
             {/* Language & Region */}
             <div className="mb-6 rounded-lg border border-slate-200 p-4">
               <div className="mb-4 flex items-center gap-2">
-                <Globe className="h-5 w-5 text-blue-600" />
+                <Globe className="h-5 w-5 text-emerald-600" />
                 <h3 className="font-semibold text-slate-900">Language & Region</h3>
               </div>
               
@@ -231,7 +231,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
                     <select
                       value={settings.language}
                       onChange={(e) => handleChange("language", e.target.value)}
-                      className="w-full rounded-lg border border-slate-300 pl-10 pr-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full rounded-lg border border-slate-300 pl-10 pr-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     >
                       <option value="english">English</option>
                       <option value="hindi">Hindi</option>
@@ -249,7 +249,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
                   <select
                     value={settings.dateFormat}
                     onChange={(e) => handleChange("dateFormat", e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   >
                     <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                     <option value="MM/DD/YYYY">MM/DD/YYYY</option>
@@ -264,7 +264,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
                   <select
                     value={settings.timezone}
                     onChange={(e) => handleChange("timezone", e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   >
                     <option value="IST">IST (UTC+5:30)</option>
                     <option value="EST">EST (UTC-5:00)</option>
@@ -278,7 +278,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
             {/* Data & Privacy */}
             <div className="mb-6 rounded-lg border border-slate-200 p-4">
               <div className="mb-4 flex items-center gap-2">
-                <Database className="h-5 w-5 text-blue-600" />
+                <Database className="h-5 w-5 text-emerald-600" />
                 <h3 className="font-semibold text-slate-900">Data & Privacy</h3>
               </div>
               
@@ -291,7 +291,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
                   <button
                     onClick={() => handleToggle("autoSave")}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                      settings.autoSave ? "bg-blue-600" : "bg-slate-200"
+                      settings.autoSave ? "bg-emerald-600" : "bg-slate-200"
                     }`}
                   >
                     <span
@@ -303,7 +303,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
                 </div>
 
                 <div className="flex gap-3">
-                  <button className="flex-1 flex items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition hover:bg-blue-100">
+                  <button className="flex-1 flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100">
                     <Download className="h-4 w-4" />
                     Export Data
                   </button>
@@ -324,7 +324,7 @@ export default function ManufSettingsModal({ isOpen, onClose, user, onUpdate }) 
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
             >
               {isSaving ? (
                 <>

@@ -235,27 +235,7 @@ export default function ManufacturerCitizenComplaints() {
         ))}
       </div>
 
-      {/* Critical Alert Banner */}
-      <div className="rounded-lg bg-rose-50 p-4 border border-rose-200">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-rose-600 shadow-sm">
-              <ShieldAlert className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="text-sm font-semibold text-rose-900">
-                High Severity Complaint: Suspected Counterfeit Reported
-              </h2>
-              <p className="mt-0.5 text-xs text-rose-700">
-                Complaint CMP-CIT-2026-004 has been escalated for regulatory review.
-              </p>
-            </div>
-          </div>
-          <button className="rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100 transition-colors whitespace-nowrap">
-            View Complaint
-          </button>
-        </div>
-      </div>
+     
 
       {/* Main Content - 2 Column Layout */}
       <div className="grid gap-6 lg:grid-cols-3">

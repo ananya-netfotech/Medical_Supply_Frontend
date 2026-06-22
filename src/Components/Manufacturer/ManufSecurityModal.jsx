@@ -58,11 +58,11 @@ export default function ManufSecurityModal({ isOpen, onClose, user }) {
         <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onClick={onClose} />
 
         <div className="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
-          {/* Header */}
+          {/* Header - Emerald theme */}
           <div className="flex items-center justify-between border-b border-slate-200 p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
-                <Shield className="h-5 w-5 text-blue-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+                <Shield className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-slate-900">Security Settings</h2>
@@ -81,7 +81,7 @@ export default function ManufSecurityModal({ isOpen, onClose, user }) {
           <div className="p-6">
             {/* Success Message */}
             {updateSuccess && (
-              <div className="mb-4 flex items-center gap-2 rounded-lg bg-green-50 p-3 text-green-700 border border-green-200">
+              <div className="mb-4 flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-emerald-700 border border-emerald-200">
                 <CheckCircle className="h-4 w-4" />
                 <p className="text-sm font-medium">Password updated successfully!</p>
               </div>
@@ -90,7 +90,7 @@ export default function ManufSecurityModal({ isOpen, onClose, user }) {
             {/* Password Update Section */}
             <div className="mb-6 rounded-lg border border-slate-200 p-4">
               <div className="mb-4 flex items-center gap-2">
-                <Lock className="h-5 w-5 text-blue-600" />
+                <Lock className="h-5 w-5 text-emerald-600" />
                 <h3 className="font-semibold text-slate-900">Change Password</h3>
               </div>
               
@@ -105,7 +105,7 @@ export default function ManufSecurityModal({ isOpen, onClose, user }) {
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       required
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       placeholder="Enter current password"
                     />
                     <button
@@ -128,7 +128,7 @@ export default function ManufSecurityModal({ isOpen, onClose, user }) {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       placeholder="Enter new password"
                     />
                     <button
@@ -150,7 +150,7 @@ export default function ManufSecurityModal({ isOpen, onClose, user }) {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     placeholder="Confirm new password"
                   />
                 </div>
@@ -165,7 +165,7 @@ export default function ManufSecurityModal({ isOpen, onClose, user }) {
                 <button
                   type="submit"
                   disabled={isUpdating}
-                  className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+                  className="w-full rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50"
                 >
                   {isUpdating ? (
                     <div className="flex items-center justify-center gap-2">
@@ -183,13 +183,13 @@ export default function ManufSecurityModal({ isOpen, onClose, user }) {
             <div className="mb-6 rounded-lg border border-slate-200 p-4">
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Smartphone className="h-5 w-5 text-blue-600" />
+                  <Smartphone className="h-5 w-5 text-emerald-600" />
                   <h3 className="font-semibold text-slate-900">Two-Factor Authentication (2FA)</h3>
                 </div>
                 <button
                   onClick={handleTwoFactorToggle}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                    twoFactorEnabled ? "bg-blue-600" : "bg-slate-200"
+                    twoFactorEnabled ? "bg-emerald-600" : "bg-slate-200"
                   }`}
                 >
                   <span
@@ -203,8 +203,8 @@ export default function ManufSecurityModal({ isOpen, onClose, user }) {
                 Add an extra layer of security to your account by requiring a verification code from your mobile device.
               </p>
               {twoFactorEnabled && (
-                <div className="mt-3 rounded-lg bg-green-50 p-3">
-                  <p className="text-sm text-green-800">
+                <div className="mt-3 rounded-lg bg-emerald-50 p-3 border border-emerald-200">
+                  <p className="text-sm text-emerald-800">
                     <strong>2FA is enabled</strong> - Your account is protected with two-factor authentication.
                   </p>
                 </div>
@@ -214,7 +214,7 @@ export default function ManufSecurityModal({ isOpen, onClose, user }) {
             {/* Session Management */}
             <div className="rounded-lg border border-slate-200 p-4">
               <div className="mb-4 flex items-center gap-2">
-                <Key className="h-5 w-5 text-blue-600" />
+                <Key className="h-5 w-5 text-emerald-600" />
                 <h3 className="font-semibold text-slate-900">Active Sessions</h3>
               </div>
               <div className="space-y-3">
@@ -223,7 +223,7 @@ export default function ManufSecurityModal({ isOpen, onClose, user }) {
                     <p className="text-sm font-medium text-slate-900">Current Session</p>
                     <p className="text-xs text-slate-500">Chrome on Windows • New Delhi, India</p>
                   </div>
-                  <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">Active Now</span>
+                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700">Active Now</span>
                 </div>
                 <button className="w-full rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100">
                   Log out all other devices
@@ -231,13 +231,13 @@ export default function ManufSecurityModal({ isOpen, onClose, user }) {
               </div>
             </div>
 
-            {/* Security Tips */}
-            <div className="mt-6 rounded-lg bg-blue-50 p-4">
+            {/* Security Tips - Emerald theme */}
+            <div className="mt-6 rounded-lg bg-emerald-50 p-4 border border-emerald-200">
               <div className="flex items-start gap-2">
-                <Fingerprint className="h-5 w-5 text-blue-600 mt-0.5" />
+                <Fingerprint className="h-5 w-5 text-emerald-600 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-blue-900">Security Tips</p>
-                  <ul className="mt-2 space-y-1 text-xs text-blue-800">
+                  <p className="text-sm font-semibold text-emerald-900">Security Tips</p>
+                  <ul className="mt-2 space-y-1 text-xs text-emerald-800">
                     <li>• Use a strong, unique password for your account</li>
                     <li>• Enable two-factor authentication for added security</li>
                     <li>• Never share your password or verification codes</li>
