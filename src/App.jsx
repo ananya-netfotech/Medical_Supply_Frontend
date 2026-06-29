@@ -6,6 +6,8 @@ import GovernmentDashboard from "./Pages/Government/GovernmentDashboard";
 import RegulatoryDashboard from "./Pages/Government/RegulatoryDashboard";
 
 import ManufacturerDashboard from "./Pages/Manufacturer/pages/ManufacturerDashboard";
+
+import PharmacyDistributorDashboard from "./Pages/Pharmacy/pages/PharmacyDistributorDashboard";
 // import RegulatoryDashboard from "./pages/dashboards/RegulatoryDashboard";
 // import ManufacturerDashboard from "./pages/dashboards/ManufacturerDashboard";
 // import PharmacyDistributorDashboard from "./pages/dashboards/PharmacyDistributorDashboard";
@@ -24,6 +26,8 @@ export default function App() {
         <Route path="/Government" element={<GovernmentDashboard />} />
         <Route path="/RegulatoryDashboard" element={<RegulatoryDashboard />} />
         <Route path="/Manufacturer" element={<ManufacturerDashboard />} />
+        <Route path="/Pharmacy" element={<PharmacyDistributorDashboard />} />
+
 
 
         {/* <Route */}

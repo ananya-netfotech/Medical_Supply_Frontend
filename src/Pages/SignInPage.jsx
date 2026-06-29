@@ -36,8 +36,8 @@ const roles = [
     id: "PHARMACY_DISTRIBUTOR",
     label: "Pharmacy",
     icon: Building2,
-    route: "/dashboard/pharmacy-distributor",
-    accent: "amber",
+    route: "/Pharmacy",
+    accent: "purple",
   },
   {
     id: "CITIZEN",
@@ -56,6 +56,7 @@ const accentStyles = {
     gradient: "from-blue-700 to-indigo-700",
     ring: "focus:ring-blue-100 focus:border-blue-500",
     softRing: "ring-blue-100",
+    badge: "bg-blue-100 text-blue-700",
   },
   emerald: {
     text: "text-emerald-700",
@@ -64,14 +65,16 @@ const accentStyles = {
     gradient: "from-emerald-600 to-teal-600",
     ring: "focus:ring-emerald-100 focus:border-emerald-500",
     softRing: "ring-emerald-100",
+    badge: "bg-emerald-100 text-emerald-700",
   },
-  amber: {
-    text: "text-amber-700",
-    bg: "bg-amber-50",
-    border: "border-amber-200",
-    gradient: "from-amber-600 to-orange-600",
-    ring: "focus:ring-amber-100 focus:border-amber-500",
-    softRing: "ring-amber-100",
+  purple: {
+    text: "text-purple-700",
+    bg: "bg-purple-50",
+    border: "border-purple-200",
+    gradient: "from-purple-600 to-indigo-600",
+    ring: "focus:ring-purple-100 focus:border-purple-500",
+    softRing: "ring-purple-100",
+    badge: "bg-purple-100 text-purple-700",
   },
   rose: {
     text: "text-rose-700",
@@ -80,6 +83,7 @@ const accentStyles = {
     gradient: "from-rose-600 to-pink-600",
     ring: "focus:ring-rose-100 focus:border-rose-500",
     softRing: "ring-rose-100",
+    badge: "bg-rose-100 text-rose-700",
   },
 };
 
@@ -97,8 +101,8 @@ export default function SignInPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-white">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-blue-50/40 to-white" />
-        <div className="absolute -left-40 top-20 h-[30rem] w-[30rem] rounded-full bg-blue-100/80 blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-purple-50/40 to-white" />
+        <div className="absolute -left-40 top-20 h-[30rem] w-[30rem] rounded-full bg-purple-100/80 blur-3xl" />
         <div className="absolute -right-40 bottom-20 h-[30rem] w-[30rem] rounded-full bg-indigo-100/70 blur-3xl" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(37,99,235,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(37,99,235,0.025)_1px,transparent_1px)] bg-[size:42px_42px]" />
       </div>
@@ -107,31 +111,31 @@ export default function SignInPage() {
         {/* Brand / Context panel */}
         <div className="relative">
           <div className="mb-8 flex items-center gap-3">
-            <div className="rounded-2xl bg-gradient-to-br from-blue-700 to-indigo-700 p-3 text-white shadow-lg shadow-blue-700/20">
+            <div className="rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 p-3 text-white shadow-lg shadow-purple-700/20">
               <ShieldCheck className="h-7 w-7" />
             </div>
 
             <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-blue-950">
-  TraceCare Bharat
-</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-purple-950">
+                TraceCare Bharat
+              </h1>
               <p className="text-sm font-medium text-slate-500">
                 Pharmaceutical Traceability & PM-JAY Platform
               </p>
             </div>
           </div>
 
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 px-4 py-2 text-sm font-semibold text-blue-900 shadow-sm backdrop-blur-sm">
-            <Sparkles className="h-4 w-4 text-blue-700" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-100 bg-white/80 px-4 py-2 text-sm font-semibold text-purple-900 shadow-sm backdrop-blur-sm">
+            <Sparkles className="h-4 w-4 text-purple-700" />
             Secure stakeholder access
           </div>
 
-          <h2 className="mt-6 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-blue-950 sm:text-5xl lg:text-6xl">
-  One platform.
-  <span className="block bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
-    Role-specific access.
-  </span>
-</h2>
+          <h2 className="mt-6 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-purple-950 sm:text-5xl lg:text-6xl">
+            One platform.
+            <span className="block bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              Role-specific access.
+            </span>
+          </h2>
 
           <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">
             Select your stakeholder role to access the relevant dashboard,
@@ -149,22 +153,22 @@ export default function SignInPage() {
 
         {/* Access card */}
         <div className="relative">
-          <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-blue-200/50 via-transparent to-indigo-200/50 blur-2xl" />
+          <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-purple-200/50 via-transparent to-indigo-200/50 blur-2xl" />
 
-          <div className="relative overflow-hidden rounded-[2rem] border border-blue-100 bg-white p-[1px] shadow-[0_35px_100px_rgba(15,23,42,0.14)]">
+          <div className="relative overflow-hidden rounded-[2rem] border border-purple-100 bg-white p-[1px] shadow-[0_35px_100px_rgba(15,23,42,0.14)]">
             <div className="relative overflow-hidden rounded-[calc(2rem-1px)] bg-white p-4 sm:p-6 md:p-8">
-              <div className="pointer-events-none absolute right-0 top-0 h-44 w-44 rounded-full bg-blue-100 blur-3xl opacity-80" />
+              <div className="pointer-events-none absolute right-0 top-0 h-44 w-44 rounded-full bg-purple-100 blur-3xl opacity-80" />
               <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 rounded-full bg-indigo-100 blur-3xl opacity-70" />
 
               <div className="relative z-10">
                 <div className="mb-6 flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-purple-700">
                       Sign in
                     </p>
-                  <h3 className="mt-2 text-3xl font-semibold tracking-tight text-blue-950">
-  Access your workspace
-</h3>
+                    <h3 className="mt-2 text-3xl font-semibold tracking-tight text-purple-950">
+                      Access your workspace
+                    </h3>
                     <p className="mt-2 text-sm leading-6 text-slate-500">
                       Choose a role and continue into the relevant dashboard.
                     </p>
@@ -198,19 +202,19 @@ export default function SignInPage() {
                             className={`mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300 ${
                               isActive
                                 ? `bg-gradient-to-br ${roleAccent.gradient} text-white shadow-lg`
-                                : "bg-white text-slate-500 group-hover:text-blue-700"
+                                : "bg-white text-slate-500 group-hover:text-purple-700"
                             }`}
                           >
                             <Icon className="h-5 w-5" />
                           </div>
 
-                         <div
-  className={`text-xs font-semibold ${
-    isActive ? "text-blue-950" : "text-slate-500"
-  }`}
->
-  {role.label}
-</div>
+                          <div
+                            className={`text-xs font-semibold ${
+                              isActive ? "text-purple-950" : "text-slate-500"
+                            }`}
+                          >
+                            {role.label}
+                          </div>
                         </button>
                       );
                     })}
@@ -254,8 +258,8 @@ export default function SignInPage() {
 
 function MiniCard({ icon: Icon, title, text }) {
   return (
-    <div className="rounded-2xl border border-blue-100 bg-white/80 p-3 sm:p-4 shadow-sm backdrop-blur-sm">
-      <div className="mb-2 sm:mb-3 inline-flex rounded-xl bg-blue-50 p-2 text-blue-700">
+    <div className="rounded-2xl border border-purple-100 bg-white/80 p-3 sm:p-4 shadow-sm backdrop-blur-sm">
+      <div className="mb-2 sm:mb-3 inline-flex rounded-xl bg-purple-50 p-2 text-purple-700">
         <Icon className="h-4 w-4" />
       </div>
 
